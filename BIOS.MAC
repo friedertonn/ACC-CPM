@@ -1,0 +1,276 @@
+        PAGE 64
+        IF1
+        .PRINTX 'PASS 1'
+        ENDIF
+;
+        IF2
+        .PRINTX 'PASS 2'
+        ENDIF
+;
+        .CREF
+        .Z80
+;
+;       ********************************************
+;       *                                          *
+;       *  BIOS fuer den AC1-2010                  *
+;       *                                          *
+;       *  16.10.2023                              *
+;       *                                          *
+;       *  LW A: Praecitronic RAM-Disk  256 KByte  *
+;       *  LW B: Floppylaufwerk MFM1.6  780 KByte  *
+;       *  Tastatur mit Interruptsteuerung         *
+;       *  Kodierung der Kursortasten              *
+;       *  Bildschirmausgabe nach ACC-Dresden      *
+;       *  Umschaltung Diskettenformat 780K-800K   *
+;       *                                          *
+;       ********************************************
+;
+GETCO   EQU  07FDH        ;Ruecksprung in den AC1-Monitor
+CCP     EQU  0D000H       ;Startadresse CCP
+BDOS    EQU  0D806H       ;Startadresse BDOS
+;
+PIO1AC  EQU  06H          ;PIO1 Port A Control
+PIO1AD  EQU  04H          ;PIO1 Port A Data
+PIO1BC  EQU  07H          ;PIO1 Port B Control
+PIO1BD  EQU  05H          ;PIO1 Port B Data
+MAP     EQU  1EH          ;Seitenschaltung nach FA
+;
+AC1MOD  EQU  0            ;AC1 - Mode
+CPMMOD  EQU  1            ;CP/M - Mode
+;
+        .PHASE 0E600H
+;
+BIOS:   JP   BOOT
+BIOSWB: JP   WBOOT
+        JP   CONST
+        JP   CONIN
+        JP   CONOUT
+        JP   LIST
+        JP   PUNCH
+        JP   READER
+        JP   HOME
+        JP   SELDSK
+        JP   SETTRK
+        JP   SETSEC
+        JP   SETDMA
+        JP   READ
+        JP   WRITE
+        JP   LISTST
+        JP   SECTRN
+;
+        DEFM 'CPMAC'      ;fuer PC/BC Progr.
+        JP   EXIT         ;EXIT-Kommando
+        JP   DISK         ;DISK-Toggle 780K <--> 800K
+        JP   0000H
+;
+SELDSK: LD   HL,0         ;HL=0 --> kein LW
+        LD   A,(NDISK)    ;Anzahl der LW
+        LD   E,A
+        LD   A,C          ;C = akt. LW
+        CP   E
+        RET  NC           ;akt. LW >= NDISK
+        LD   (DRIVE),A    ;Merker fuer akt. LW
+        LD   L,C
+        ADD  HL,HL
+        ADD  HL,HL
+        ADD  HL,HL
+        ADD  HL,HL
+        LD   DE,DPH
+        ADD  HL,DE        ;zugeordneter DPH --> HL
+        RET
+;
+SECTRN: LD   H,0          ;CP/A-Routine fuer 8 Bit
+        LD   L,C
+        INC  HL
+        RET
+;
+SETSEC: LD   A,C
+        LD   (SECTOR),A
+        RET
+;
+HOME:   LD   C,0
+SETTRK: LD   A,C
+        LD   (TRACK),A
+        RET
+;
+SETDMA: LD   (DMA),BC
+        RET
+;
+PLATZ:  DEFS BIOS+80H-PLATZ-5,0
+;
+TZ:     DEFB 0            ;Fuellstand Tastaturpuffer
+TZOUT:  DEFW TAPU         ;Ausgabezeiger
+TZIN:   DEFW TAPU         ;Eingabezeiger
+TAPU:   DEFS 8,0          ;Tastatur-Ringpuffer
+;
+IV:     DEFW INTA         ;Int.-Vektor fuer CONIN (PIO)
+;
+        .PRINTX '--> BOOT'
+$INCLUDE BOOT.INC
+;
+        .PRINTX '--> DISKSET'
+$INCLUDE DISKSET.INC
+;
+        .PRINTX '--> FLOPPY'
+$INCLUDE FLOPPY.INC
+;
+        .PRINTX '--> RAMDISK'
+$INCLUDE RAMDISK.INC
+;
+        .PRINTX '--> CONSOLE'
+$INCLUDE CONSOLE.INC
+;
+WRITE:  LD   A,(DRIVE)
+        CP   0
+        JP   Z,WRRDSK
+        CP   1
+        JP   Z,WRFLO
+        LD   A,1          ;ERROR
+        RET
+;
+READ:   LD   A,(DRIVE)
+        CP   0
+        JP   Z,RDRDSK
+        CP   1
+        JP   Z,RDFLO
+        LD   A,1          ;ERROR
+        RET
+;
+LIST:   JP   CONOUT
+;
+LISTST: LD   A,0          ;nicht bereit
+        RET
+;
+PUNCH:  JP   CONOUT
+;
+READER: JP   CONIN
+;
+DERROR: LD   HL,TEXT2
+        CALL OUTTXT
+ERROR:  LD   HL,TEXT3
+        CALL OUTTXT
+        CALL DERR1        ;Floppy-Motor ausschalten
+        JP   WBOOT
+;
+OUTTXT: PUSH AF
+        PUSH BC
+TXTLOP: LD   A,(HL)
+        CP   0
+        JR   Z,TXTEND
+        LD   C,A
+        CALL CONOUT
+        INC  HL
+        JR   TXTLOP
+TXTEND: POP  BC
+        POP  AF
+        RET
+;
+TEXT1:  DEFB 0CH,1BH,03H,0BH
+        DEFM ' CP/M 2.2  Version 1.48 fuer den AC1-2010 '
+        DEFB 0DH,0AH,0AH,0AH
+        DEFM 'A:RAM-Disk '
+        DEFB 00H
+TEXT1A: DEFM "256K"
+        DEFB 00H
+TEXT1B: DEFM "1024K"
+        DEFB 00H
+TEXT1C: DEFM '  B:Floppy 780K  '
+        DEFB 0DH,0AH,0AH,00H
+TEXT2:  DEFB 0DH,0AH
+        DEFM 'Disk-'
+        DEFB 00H
+TEXT3:  DEFM 'ERROR'
+        DEFB 0DH,0AH,07H,00H
+;
+DPH:    DEFW 0            ;RAM-Disk 256K
+        DEFW 0
+        DEFW 0
+        DEFW 0
+        DEFW DIRBF
+        DEFW DPB0
+        DEFW 0            ;weil nichtwechselbares Medium
+        DEFW ALL0
+;
+        DEFW 0            ;Floppy 780K
+        DEFW 0
+        DEFW 0
+        DEFW 0
+        DEFW DIRBF
+        DEFW DPB1
+        DEFW CHK1
+        DEFW ALL1
+;
+;Disk-Parameter-Block  RAM-Disk 256K
+;
+DPB0:   DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+        DEFB 3            ;Blockgroesse = 1 Kbyte
+        DEFB 7
+        DEFB 0            ;8-Bit Blockadressen im FCB/DIR, da weniger als 255 Bloecke
+        DEFW 247          ;248 * 1 Kbyte-Bloecke  -> 256k-8k(System)=248k(CP/M) ( - 2k(DIR) -> 246k (NETTO f. Daten))
+        DEFW 63           ;64 DIR - Eintaege
+        DEFW 0C0H         ;2 DIR-Bloecke
+        DEFW 0            ;weil nichtwechselbares Medium
+        DEFW 1            ;8 Kbyte System / Track-Offset
+;
+        DEFW 0
+;
+;Disk-Parameter-Block  Floppy 780K
+;
+DPB1:   DEFW 80           ;80 Sectoren/Track
+        DEFB 4            ;Blockgroesse = 2 Kbyte
+        DEFB 15
+        DEFB 0
+        DEFW 389          ;390 * 2 Kbyte - Bloecke
+        DEFW 127          ;128 DIR - Eintraege
+        DEFW 0C0H         ;pro DIR-Block 1Bit gesetzt
+        DEFW 32
+        DEFW 2            ;20 Kbyte System
+;
+        DEFW 0
+;
+;Disk-Parameter-Block fuer RAM-Disk 1024 KByte
+;
+DP1024: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+        DEFB 4            ;Blockgroesse = 2 Kbyte
+        DEFB 15
+        DEFB 0            ;16-Bit Blockadressen im FCB/DIR, da mehr als 255 Bloecke
+        DEFW 507          ;508 * 2 Kbyte-Bloecke  -> 1024k-8k(System)=1016k(CP/M) ( - 4k(DIR) -> 1012k (NETTO f. Daten))
+        DEFW 127          ;128 DIR - Eintraege -> bei 64 DIR-Eintraegen bekommt man die RAM-Disk nicht voll
+        DEFW 0C0H         ;2 DIR-Bloecke
+        DEFW 0            ;weil nichtwechselbares Medium
+        DEFW 1            ;8 Kbyte System / Track-Offset
+;
+EXIT:   DI
+        LD   SP,2000H
+        LD   HL,0D007H
+        LD   (HL),0       ;Kommandopuffer loeschen
+        LD   A,AC1MOD
+        OUT  (MAP),A
+        LD   A,3          ;verbiete Interrupt
+        OUT  (PIO1AC),A
+        LD   A,4FH        ;PIO - Mode 1
+        OUT  (PIO1AC),A
+        LD   HL,103FH
+        LD   (1800H),HL   ;neue Kursorposition
+        LD   A,0FH
+EXIT1:  LD   (HL),20H     ;letzte BS-Zeile loeschen
+        DEC  HL
+        CP   H
+        JR   NZ,EXIT1
+        JP   GETCO        ;Ruecksprung in den AC1-Monitor
+;
+NDISK:  DEFB 2            ;Anzahl der LW
+DRIVE:  DEFB 0            ;Merker aktuelles LW
+;
+DIRBF:  DEFS 80H,0
+ALL0:   DEFS 64,0         ;Anzahl der Bit's = Anzahl der
+ALL1:   DEFS 50,0         ;Bloecke, die zu verwalten sind
+CHK1:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
+;
+SAVSTK: DEFS 80H,0
+BIOSTK:
+;
+        .DEPHASE
+        END
+;
+

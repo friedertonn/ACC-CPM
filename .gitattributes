@@ -1,0 +1,5 @@
+*.ASM text eol=crlf
+*.LST text eol=crlf
+*.SUB text eol=crlf
+*.ASM linguist-language=Assembly linguist-detectable
+*.LST linguist-generated
