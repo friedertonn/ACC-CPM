@@ -2,12 +2,12 @@
 Assemblercode von ACC-CPM für den AC1-2010
 
 ACC-CPM ist ein CP/M V2.2 kompatibles Betriebssystem und wurde vom **A**mateur-**C**omputer-**C**lub Berlin für den AC1 entwickelt.
-Es besteht aus drei Teilen: CCP, BDOS und BIOS.
-Das BIOS ist modular aufgebaut und an die Hardware des AC1-2010 angepasst.
-Es unterstützt eine Präzitronic RAM-Disk und ein Diskettenlaufwerk.
+Es besteht aus CCP, BDOS und BIOS.
+Das BIOS ist modular aufgebaut und in diesem Repository an die Hardware des AC1-2010 angepasst.
+Es benötigt eine Präzitronic RAM-Disk und eine FDC-Karte mit *double sided, double density* Diskettenlaufwerk.
 Der CCP beginnt auf Adresse 0D000h, die Startadresse ist 0E600h.
 
-Für den CCP und das BDOS wurden CP/A-Assemblerquellen von Volker Pohlers verwendet:
+Für den CCP und das BDOS wurden CP/A-Assemblerdateien von Volker Pohlers verwendet:
 https://hc-ddr.hucki.net/wiki/doku.php/cpm/cpa
 
 Im BIOS wurden Änderungen vorgenommen:
@@ -16,6 +16,6 @@ Im BIOS wurden Änderungen vorgenommen:
 
 Das Assemblieren des Quellcodes erfolgt mit SUBMIT.COM: **SUBMIT BIOS**
 
-Nachfolgend ein Bildschirmcopy von HRCPM12 im JKCEMU:
+Nachfolgend ein Bildschirmcopy von ACC-CPM im JKCEMU:
 
-![Bildschirmcopy von HRCPM12](https://github.com/friedertonn/ACC-CPM/blob/main/Fotos/ACC-CPM.png?raw=true)
+![Bildschirmcopy von ACC-CPM](https://github.com/friedertonn/ACC-CPM/blob/main/Fotos/ACC-CPM.png?raw=true)
