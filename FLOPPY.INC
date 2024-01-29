@@ -4,7 +4,7 @@
 ;       *                     *
 ;       ***********************
 ;
-;16.10.2023
+;24.01.2024
 ;
 ;Sectorberechnung Floppy
 ;-----------------------
@@ -463,16 +463,16 @@ RWEND:  LD   HL,RWTEST
         RET
 ;
 SECTOR: DEFB 1
-DMA:    DEFW 80H
+DMA:    DEFW 0080H
 FDCCOM: DEFW CTAB
-STREG:  DEFB 0            ;fuer DL175
+STREG:  DEFB 0            ;Statusregister fuer DL175
 CTAB:   DEFB 0FFH
 UNIT:   DEFB 0            ;akt. LW
 TRACK:  DEFB 0
 HEAD:   DEFB 0
 SECTR:  DEFB 1
 N:      DEFB 3            ;N=3 --> 1Kbyte
-EOT:    DEFB 5            ;5 Sectoren je Spur
+EOT:    DEFB 5            ;5 Sektoren je Spur
 GPL:    DEFB 32H          ;Luecke
 DTL:    DEFB 0FFH
 N2:     DEFB 4

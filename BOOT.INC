@@ -4,7 +4,7 @@
 ;       *              *
 ;       ****************
 ;
-;16.10.2023
+;24.01.2023
 ;
 BOOT:   DI
         LD   SP,80H
@@ -39,22 +39,30 @@ BOOT:   DI
 ;
         LD   HL,TEXT1     ;Systemueberschrift
         CALL OUTTXT
-        CALL RDTEST       ;Test der RAM-Disk - Größe
-        LD   HL,RDSIZE    ;RD-Size: 0=256K 2=1024K
-        LD   A,(HL)
-        CP   0
-        JR   Z,BOOT1      ;256K RAM-Disk, nichts kopieren
-;
-        LD   HL,DP1024    ;DPB fuer 1024K RAM-Disk kopieren
-        LD   DE,DPB0
+        CALL RDTEST       ;Kapazitaet der RAM-Disk bestimmen
+        LD   A,(RDSIZE)   ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
+        LD   HL,DP2048    ;DPB 2048K RAM-Disk
+        LD   IX,TEXT1D    ;Text: "A:RAM-Disk 2048K"
+        CP   3
+        JR   Z,BOOT2
+        LD   HL,DP1024    ;DPB 1024K RAM-Disk
+        LD   IX,TEXT1C    ;Text: "A:RAM-Disk 1024K"
+        CP   2
+        JR   Z,BOOT2
+        LD   HL,DP512     ;DPB 512K RAM-Disk
+        LD   IX,TEXT1B    ;Text: "A:RAM-Disk 512K"
+        CP   1
+        JR   Z,BOOT2
+        LD   IX,TEXT1A    ;Text: "A:RAM-Disk 256K"
+        JR   BOOT3        ;256K RAM-Disk, kein LDIR
+;        
+BOOT2:  LD   DE,DPB0
         LD   BC,15
         LDIR
-        LD   HL,TEXT1B    ;Text: "A:RAM-Disk 1024K"
-        JR   BOOT2
-;
-BOOT1:  LD   HL,TEXT1A    ;Text: "A:RAM-Disk 256K"
-BOOT2:  CALL OUTTXT
-        LD   HL,TEXT1C    ;Text: "B:Floppy 780K"
+BOOT3:  PUSH IX           ;RAM-Disk Text --> HL
+        POP  HL
+        CALL OUTTXT
+        LD   HL,TEXT1E    ;Text: "B:Floppy 780K"
         CALL OUTTXT
 ;
         CALL INITRD       ;RAM-Disk Initialisierung
@@ -65,10 +73,14 @@ BOOT2:  CALL OUTTXT
         LD   (4),A        ;akt. LW
         LD   (BLTEST),A   ;HST-Kennung ruecksetzen
 ;
+        DI
+        LD   SP,80H
+        JR   WBOOT1       ;CCP-Read ueberspringen
+;
 WBOOT:  DI
         LD   SP,80H
-        CALL CCPLD        ;CCP + BDOS laden
-        XOR  A
+        CALL CCPRD        ;CCP + BDOS laden
+WBOOT1: XOR  A
         LD   (CTAB),A     ;letzter FDC-Befehl
         LD   A,0C3H
         LD   (0),A        ;JP WBOOT eintragen

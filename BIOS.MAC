@@ -10,20 +10,20 @@
         .CREF
         .Z80
 ;
-;       ********************************************
-;       *                                          *
-;       *  BIOS fuer den AC1-2010                  *
-;       *                                          *
-;       *  16.10.2023                              *
-;       *                                          *
-;       *  LW A: Praecitronic RAM-Disk  256 KByte  *
-;       *  LW B: Floppylaufwerk MFM1.6  780 KByte  *
-;       *  Tastatur mit Interruptsteuerung         *
-;       *  Kodierung der Kursortasten              *
-;       *  Bildschirmausgabe nach ACC-Dresden      *
-;       *  Umschaltung Diskettenformat 780K-800K   *
-;       *                                          *
-;       ********************************************
+;       ****************************************************************
+;       *                                                              *
+;       *  ACC-BIOS fuer den AC1-2010                                  *
+;       *                                                              *
+;       *  29.01.2024                                                  *
+;       *                                                              *
+;       *  LW A: Praecitronic RAM-Disk  256 KByte                      *
+;       *  LW B: Floppylaufwerk MFM1.6  780 KByte                      *
+;       *  Tastatur mit Interruptsteuerung                             *
+;       *  Bildschirmausgabe nach ACC-Dresden                          *
+;       *  automatische RAM-Disk Groessenerkennung 256K bis 2048K      *
+;       *  Umschaltung Diskettenformat 780K-800K mit dem DISK-Befehl   *
+;       *                                                              *
+;       ****************************************************************
 ;
 GETCO   EQU  07FDH        ;Ruecksprung in den AC1-Monitor
 CCP     EQU  0D000H       ;Startadresse CCP
@@ -60,7 +60,7 @@ BIOSWB: JP   WBOOT
 ;
         DEFM 'CPMAC'      ;fuer PC/BC Progr.
         JP   EXIT         ;EXIT-Kommando
-        JP   DISK         ;DISK-Toggle 780K <--> 800K
+        JP   DISK         ;DISK-Umschaltung 780K <--> 800K
         JP   0000H
 ;
 SELDSK: LD   HL,0         ;HL=0 --> kein LW
@@ -166,15 +166,19 @@ TXTEND: POP  BC
         RET
 ;
 TEXT1:  DEFB 0CH,1BH,03H,0BH
-        DEFM ' CP/M 2.2  Version 1.48 fuer den AC1-2010 '
+        DEFM ' CP/M 2.2  Version 1.49 fuer den AC1-2010 '
         DEFB 0DH,0AH,0AH,0AH
         DEFM 'A:RAM-Disk '
         DEFB 00H
 TEXT1A: DEFM "256K"
         DEFB 00H
-TEXT1B: DEFM "1024K"
+TEXT1B: DEFM "512K"
         DEFB 00H
-TEXT1C: DEFM '  B:Floppy 780K  '
+TEXT1C: DEFM "1024K"
+        DEFB 00H
+TEXT1D: DEFM "2048K"
+        DEFB 00H
+TEXT1E: DEFM '  B:Floppy 780K  '
         DEFB 0DH,0AH,0AH,00H
 TEXT2:  DEFB 0DH,0AH
         DEFM 'Disk-'
@@ -228,8 +232,20 @@ DPB1:   DEFW 80           ;80 Sectoren/Track
 ;
         DEFW 0
 ;
-;Disk-Parameter-Block fuer RAM-Disk 1024 KByte
+;Disk-Parameter-Bloecke fuer RAM-Disk 512 / 1024 / 2048 KByte
 ;
+;RAM-Disk 512 KByte  LW A:
+DP512:  DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+        DEFB 4            ;Blockgroesse = 2 Kbyte
+        DEFB 15
+        DEFB 1            ;8-Bit Blockadressen im FCB/DIR, da weniger als 255 Bloecke
+        DEFW 251          ;252 * 2 Kbyte-Bloecke  -> 512k-8k(System)=504k(CP/M) ( - 2k(DIR) -> 502k (NETTO f. Daten))
+        DEFW 63           ;64 DIR - Eintaege
+        DEFW 080H         ;1 DIR-Block
+        DEFW 0            ;weil nichtwechselbares Medium
+        DEFW 1            ;8 Kbyte System / Track-Offset
+;
+;RAM-Disk 1024 KByte  LW A:
 DP1024: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
         DEFB 4            ;Blockgroesse = 2 Kbyte
         DEFB 15
@@ -239,6 +255,19 @@ DP1024: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
         DEFW 0C0H         ;2 DIR-Bloecke
         DEFW 0            ;weil nichtwechselbares Medium
         DEFW 1            ;8 Kbyte System / Track-Offset
+;
+;RAM-Disk 2048 KByte  LW A:
+DP2048: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+        DEFB 4            ;Blockgroesse = 2 Kbyte
+        DEFB 15
+        DEFB 0            ;16-Bit Blockadressen im FCB/DIR, da mehr als 255 Bloecke
+        DEFW 1019         ;1020 * 2 Kbyte-Bloecke  -> 2048k-8k(System)=2040k(CP/M) ( - 8k(DIR) -> 2032k (NETTO f. Daten))
+        DEFW 255          ;256 DIR - Eintraege
+        DEFW 0F0H         ;4 DIR-Bloecke
+        DEFW 0            ;weil nichtwechselbares Medium
+        DEFW 1            ;8 Kbyte System / Track-Offset
+;
+; CP/M verlassen
 ;
 EXIT:   DI
         LD   SP,2000H
@@ -259,11 +288,13 @@ EXIT1:  LD   (HL),20H     ;letzte BS-Zeile loeschen
         JR   NZ,EXIT1
         JP   GETCO        ;Ruecksprung in den AC1-Monitor
 ;
+; RAM-Zellen
+;
 NDISK:  DEFB 2            ;Anzahl der LW
 DRIVE:  DEFB 0            ;Merker aktuelles LW
 ;
 DIRBF:  DEFS 80H,0
-ALL0:   DEFS 64,0         ;Anzahl der Bit's = Anzahl der
+ALL0:   DEFS 128,0        ;Anzahl der Bit's = Anzahl der
 ALL1:   DEFS 50,0         ;Bloecke, die zu verwalten sind
 CHK1:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
 ;

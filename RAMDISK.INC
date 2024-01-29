@@ -4,16 +4,16 @@
 ;       *                       *
 ;       *************************
 ;
-;27.11.2022
+;29.01.2024
 ;
-;Die RAM-Disk hat eine Organisation von 128 Tracks
+;Die RAM-Disk hat eine Organisation von 256 Tracks
 ;und 64 Sectoren/Track (8K / Track).
-;Track 0 ist für das BIOS reserviert (Systemtrack).
+;Track 0 ist für CCP + BDOS reserviert (8K Systemtrack).
 ;
 RDADR   EQU  0E0H         ;Grund-Adresse der RAM-Disk
 ;
-RDSIZE: DEFB 0            ;RD-Size: 0=256K 1=512K 2=1024K
-RDMERK: DEFS 3,0          ;3 Merkzellen fuer den RAM-Test
+RDMERK: DEFS 4,0          ;4 Merkzellen fuer den RAM-Disk Test
+RDSIZE: DEFB 0            ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
 ;
 ; RAM-Disk lesen
 ; --------------
@@ -34,7 +34,7 @@ WRRDSK: CALL RDARI
 ; Disk-Adresse bestimmen
 ; ----------------------
 ;
-RDARI:  LD   A,(TRACK)    ;0TTTTTTT
+RDARI:  LD   A,(TRACK)    ;TTTTTTTT
         LD   L,A
         LD   A,(SECTOR)   ;00SSSSSS
         AND  A
@@ -49,34 +49,25 @@ RDARI:  LD   A,(TRACK)    ;0TTTTTTT
         ADD  HL,HL
         ADD  HL,HL
         ADD  HL,HL
-        ADD  HL,HL        ;000TTTTT TT000000
-        ADD  HL,DE        ;000TTTTT TTSSSSSS
-        RR   H            ;0000TTTT
+        ADD  HL,HL        ;00TTTTTT TT000000
+        ADD  HL,DE        ;00TTTTTT TTSSSSSS
+        RR   H            ;000TTTTT
         RR   L            ;TTTSSSSS
         RR   A            ;S0000000
         OUT  (RDADR+7),A  ;NWT
         LD   A,L
         OUT  (RDADR+6),A  ;HWT
         LD   A,H
-        AND  1FH
-        CP   10H
-        JR   NC,BDERR     ;BDOS-Error
         LD   C,A          ;Akku sichern
-        SRL  A
+        SRL  A            ;0 --> A7 --> A0 --> CY
         SRL  A
         OUT  (RDADR+5),A  ;XWT
         LD   A,C          ;Akku zurueck
         AND  3
-        OR   RDADR        ;Grund-Adresse der RAM-Disk
+        OR   RDADR        ;Grundadresse der RAM-Disk
         LD   C,A
         LD   B,128
         LD   HL,(DMA)
-        RET
-;
-; BDOS-Fehler
-; -----------
-;
-BDERR:  LD   A,1
         RET
 ;
 ; RAM-DISK formatieren
@@ -85,7 +76,7 @@ BDERR:  LD   A,1
 INITRD: LD   HL,RDTXT     ;RAM-Disk formatieren?
         CALL OUTTXT
         CALL CONIN
-        AND  0DFH         ;UPCASE
+        RES  5,A          ;UPCASE
         CP   "J"
         JR   Z,INITR1
         LD   HL,NOTXT     ;nein
@@ -94,50 +85,53 @@ INITRD: LD   HL,RDTXT     ;RAM-Disk formatieren?
 ;
 INITR1: LD   HL,YESTXT    ;ja
         CALL OUTTXT
-        LD   HL,(DMA)     ;DMA mit 0E5H auffüllen
-        LD   (HL),0E5H
-        LD   D,H
-        LD   E,L
-        INC  DE
-        LD   BC,07FH      ;128 Byte
+        LD   HL,0080H
+        LD   (DMA),HL
+        LD   (HL),0E5H    ;DMA mit 0E5H auffüllen
+        LD   DE,0081H
+        LD   BC,07FH
         LDIR
         LD   A,64         ;64 Sektoren
         LD   (SECTOR),A
-        LD   A,(RDSIZE)   ;RD-Size: 0=256K 1=512K 2=1024K
-        LD   B,A
-        INC  B
-INITR2: LD   A,16         ;16 Tracks = 128K
-        SLA  A            ;A = A * 2
-        DJNZ INITR2       ;1-3 Durchlaeufe, je nach RDSIZE
+        LD   A,(RDSIZE)   ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
+        INC  A
+        LD   B,A          ;B-Reg.: 1=256K 2=512K 3=1024K 4=2048K
+        LD   A,16         ;16 Tracks = 128K
+INITR2: SLA  A            ;A = A * 2
+        DJNZ INITR2       ;1-4 Durchlaeufe, je nach RDSIZE
+        LD   HL,TICK      ;Ausgabe "-"
+        CALL OUTTXT
         LD   HL,TRACK
-        LD   (HL),A
+        LD   (HL),A       ;Anzahl der Tracks, bei 2048K ist A=0
 INITR3: DEC  (HL)         ;Track--
-        PUSH HL
-INITR4: CALL WRITE
+        LD   A,(HL)
+        AND  31           ;jeder 32. Track, also alle 256K
+        JR   NZ,INITR4
+        LD   HL,TICK      ;Ausgabe "-"
+        CALL OUTTXT
+INITR4: CALL WRRDSK
         LD   HL,SECTOR
         DEC  (HL)         ;Sektor--
         JR   NZ,INITR4
         LD   (HL),64      ;64 Sektoren
-        POP  HL
-        DEC  (HL)
-        INC  (HL)         ;Track = 0 ?
+        LD   HL,TRACK
+        INC  (HL)
+        DEC  (HL)         ;Track = 0 ?
         JR   NZ,INITR3
-        CALL CCPSAV       ;CCP + BDOS --> RAM-Disk
-        LD   HL,0080H
-        LD   (DMA),HL
+        CALL CCPWR        ;CCP + BDOS --> RAM-Disk
         LD   HL,INITOK
         CALL OUTTXT
         RET
 ;
-; CCP + BDOS speichern
-; --------------------
+; CCP + BDOS in Track 0 schreiben (44 Sektoren)
+; -------------------------------
 ;
-CCPSAV: XOR  A
+CCPWR:  XOR  A
         LD   (TRACK),A
         INC  A
         LD   (SECTOR),A
-        LD   HL,CCP       ;CCP
-CCPS1:  LD   (DMA),HL
+        LD   HL,CCP       ;CCP-Startadresse
+CCPWR1: LD   (DMA),HL
         PUSH HL
         CALL WRRDSK       ;RAM-Disk schreiben
         LD   HL,SECTOR
@@ -147,18 +141,18 @@ CCPS1:  LD   (DMA),HL
         ADD  HL,BC
         LD   A,0E5H
         CP   H
-        JR   NC,CCPS1     ;0E600H noch nicht erreicht
+        JR   NC,CCPWR1    ;0E600H noch nicht erreicht
         RET
 ;
-; CCP + BDOS laden
-; ----------------
+; CCP + BDOS von Track 0 lesen (44 Sektoren)
+; ----------------------------
 ;
-CCPLD:  XOR  A
+CCPRD:  XOR  A
         LD   (TRACK),A
         INC  A
         LD   (SECTOR),A
-        LD   HL,CCP       ;CCP
-CCPL1:  LD   (DMA),HL
+        LD   HL,CCP       ;CCP-Startadresse
+CCPRD1: LD   (DMA),HL
         PUSH HL
         CALL RDRDSK       ;RAM-Disk lesen
         LD   HL,SECTOR
@@ -168,74 +162,86 @@ CCPL1:  LD   (DMA),HL
         ADD  HL,BC
         LD   A,0E5H
         CP   H
-        JR   NC,CCPL1     ;0E600H noch nicht erreicht
+        JR   NC,CCPRD1    ;0E600H noch nicht erreicht
         RET
 ;
-; Test der RAM-Disk - Größe (256 / 512 / 1024 KByte)
+; Test der RAM-Disk - Größe (256 / 512 / 1024 / 2048 KByte)
 ; -------------------------
 ;
-RDTEST: XOR  A
+RDTEST: XOR  A            ;Kapazitaet der RAM-Disk testen
         OUT  (RDADR+6),A  ;H-Adresse ruecksetzen
-        LD   HL,RDMERK    ;Merkzellen RAM
-        LD   B,3          ;3 Durchlaeufe
         LD   C,RDADR      ;Test erfolgt in der 1. RAM-Bank
-        LD   D,0          ;Startwert Extended-Adresse
+;
+; Inhalte der 4 RAM-Testzellen sichern
+;
+        LD   HL,RDMERK    ;Merkzellen im RAM
+        LD   B,4          ;4 Durchlaeufe
+        LD   D,4          ;Startwert Extended-Adresse
 RDTST1: XOR  A
         OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
         LD   A,D
         OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
         IN   A,(C)
         LD   (HL),A       ;Daten aus der RAM-Disk sichern
-        XOR  A
+        INC  HL           ;Merkzelle++
+        SRL  D            ;0 --> D7 --> D0 --> CY
+        DJNZ RDTST1
+;
+; 4 Testwerte in die RAM-Disk schreiben
+;
+        LD   B,4          ;4 Durchlaeufe
+        LD   D,4          ;Startwert Extended-Adresse
+RDTST2: XOR  A
         OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
         LD   A,D
+        OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
         OUT  (C),A        ;Testwert in die RAM-Disk schreiben
-        INC  HL           ;Merkzelle++
-        INC  D            ;Extended-Adresse++ / Testwert++
-        DJNZ RDTST1
+        SRL  D            ;0 --> D7 --> D0 --> CY
+        DJNZ RDTST2
 ;
 ;Tabelle der Test-Werte (mit *...* sind die zu testenden Werte):
 ;
-;     RAM-Disk-Size =   256K   512K   1024K
-;Extended-Adresse=00B    02H    02H   *00H*
-;Extended-Adresse=01B    02H   *01H*   01H
-;Extended-Adresse=10B   *02H*   02H    02H
+;           RAM-Disk-Size =   256K   512K  1024K  2048K
+;Extended-Adresse=00000100B    0      0      0     *4*
+;Extended-Adresse=00000010B    0      0     *2*     2
+;Extended-Adresse=00000001B    0     *1*     1      1
+;Extended-Adresse=00000000B   *0*     0      0      0
 ;
-        LD   B,3          ;3 Durchlaeufe
-        LD   D,0          ;Startwert Extended-Adresse
-RDTST2: XOR  A
+; Groesse der RAM-Disk bestimmen
+;
+        LD   B,4          ;4 Durchlaeufe
+        LD   D,4          ;Startwert Extended-Adresse
+RDTST3: XOR  A
         OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
         LD   A,D
         OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
         IN   A,(C)
         CP   D
-        JR   Z,RDTST3     ;1024K (B=3), 512K (B=2), 256K (B=1)
-        INC  D            ;Extended-Adresse++ / Testwert++
-        DJNZ RDTST2
+        JR   Z,RDTST4     ;2048(B=4),1024(B=3),512(B=2),256(B=1)
+        SRL  D            ;0 --> D7 --> D0 --> CY
+        DJNZ RDTST3
         JP   DERROR       ;Fehler: hier stimmt was nicht!
 ;
-RDTST3: LD   HL,RDSIZE
+RDTST4: LD   HL,RDSIZE
         DEC  B
-        LD   (HL),B       ;RD-Size: 0=256K 1=512K 2=1024K
+        LD   (HL),B       ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
 ;
-        DEC  B
-        JP   Z,DERROR     ;RD-SIZE=512K --> Fehlermeldung
-        INC  B
-;
-        LD   HL,RDMERK    ;Merkzellen RAM (in die RD zurueck)
-        INC  B            ;1-3 Durchlaeufe, je nach RDSIZE
-        LD   C,RDADR      ;1. RAM-Bank
-        LD   D,0          ;Startwert Extended-Adresse
-RDTST4: XOR  A
+; gesicherte Daten in die RAM-Disk zurueckschreiben
+; 
+        LD   HL,RDMERK+3  ;Merkzellen RAM (letzter Eintrag)
+        INC  B            ;1 bis 4 Durchlaeufe, je nach RDSIZE
+        LD   D,1          ;Startwert Ext.-Adr. (1 Bit n. rechts)
+RDTST5: XOR  A
         OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
         LD   A,D
+        SRL  A            ;0 --> A7 --> A0 --> CY
         OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
         LD   A,(HL)
         OUT  (C),A        ;urspruengliche Daten zurueckschreiben
-        INC  HL
-        INC  D
-        DJNZ RDTST4       ;WICHTIG: nicht mehr als notwendig
-        RET               ;in die RAM-Disk zurückschreiben!!
+        DEC  HL
+        SLA  D            ;CY <-- D7 <-- D0 <-- 0
+        DJNZ RDTST5       ;WICHTIG: nicht mehr als notwendig
+        RET               ;in die RAM-Disk zurueckschreiben!
 ;
 RDTXT:  DEFM 'RAM-Disk formatieren? (J/N): '
         DEFB 00H
@@ -243,7 +249,8 @@ YESTXT: DEFM 'J'
         DEFB 0DH,0AH,00H
 NOTXT:  DEFM 'N'
         DEFB 0DH,0AH,00H
-INITOK: DEFM '---> Init. O.K.'
+TICK:   DEFB 2DH,00H
+INITOK: DEFM '> Init. O.K.'
         DEFB 0DH,0AH,00H
 ;
 

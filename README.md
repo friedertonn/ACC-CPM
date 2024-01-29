@@ -11,10 +11,13 @@ Für den CCP und das BDOS wurden CP/A-Assemblerdateien von Volker Pohlers verwen
 https://hc-ddr.hucki.net/wiki/doku.php/cpm/cpa
 
 Im BIOS wurden Änderungen vorgenommen:
-- Automatische Erkennung der RAM-Disk-Größe: 256 / 512 / 1024 KByte
+- Automatische Erkennung der RAM-Disk-Größe: 256/512/1024/2048 KByte
 - Umschalten des Diskettenlaufwerks auf 780 / 800 KByte mit "DISK"
 
-Das Assemblieren des Quellcodes erfolgt mit SUBMIT.COM: **SUBMIT BIOS**
+Das Assemblieren des Quellcodes erfolgt mit SUBMIT.COM:
+```
+SUBMIT BIOS
+```
 
 Nachfolgend ein Bildschirmcopy von ACC-CPM im JKCEMU:
 
