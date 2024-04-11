@@ -4,11 +4,11 @@
 ;       *                       *
 ;       *************************
 ;
-;29.01.2024
+;10.04.2024
 ;
 ;Die RAM-Disk hat eine Organisation von 256 Tracks
 ;und 64 Sectoren/Track (8K / Track).
-;Track 0 ist für CCP + BDOS reserviert (8K Systemtrack).
+;Track 0 ist fuer CCP + BDOS reserviert (8K Systemtrack).
 ;
 RDADR   EQU  0E0H         ;Grund-Adresse der RAM-Disk
 ;
@@ -87,7 +87,7 @@ INITR1: LD   HL,YESTXT    ;ja
         CALL OUTTXT
         LD   HL,0080H
         LD   (DMA),HL
-        LD   (HL),0E5H    ;DMA mit 0E5H auffüllen
+        LD   (HL),0E5H    ;DMA mit 0E5H auffuellen
         LD   DE,0081H
         LD   BC,07FH
         LDIR
@@ -118,17 +118,23 @@ INITR4: CALL WRRDSK
         INC  (HL)
         DEC  (HL)         ;Track = 0 ?
         JR   NZ,INITR3
+        IFDEF FLOPPY
         CALL CCPWR        ;CCP + BDOS --> RAM-Disk
+        ENDIF
         LD   HL,INITOK
         CALL OUTTXT
         RET
 ;
-; CCP + BDOS in Track 0 schreiben (44 Sektoren)
-; -------------------------------
+; CCP + BDOS in Track 0/255 schreiben (44 Sektoren)
+; -----------------------------------
 ;
+IFDEF FLOPPY
 CCPWR:  XOR  A
+ELSE
+CCPWR:  LD   A,255
+ENDIF
         LD   (TRACK),A
-        INC  A
+        LD   A,1
         LD   (SECTOR),A
         LD   HL,CCP       ;CCP-Startadresse
 CCPWR1: LD   (DMA),HL
@@ -139,17 +145,25 @@ CCPWR1: LD   (DMA),HL
         POP  HL
         LD   BC,128
         ADD  HL,BC
+IFDEF FLOPPY
         LD   A,0E5H
+ELSE
+        LD   A,0F5H
+ENDIF
         CP   H
-        JR   NC,CCPWR1    ;0E600H noch nicht erreicht
+        JR   NC,CCPWR1    ;0E600H/0F600H noch nicht erreicht
         RET
 ;
-; CCP + BDOS von Track 0 lesen (44 Sektoren)
-; ----------------------------
+; CCP + BDOS von Track 0/255 lesen (44 Sektoren)
+; --------------------------------
 ;
+IFDEF FLOPPY
 CCPRD:  XOR  A
+ELSE
+CCPRD:  LD   A,255
+ENDIF
         LD   (TRACK),A
-        INC  A
+        LD   A,1
         LD   (SECTOR),A
         LD   HL,CCP       ;CCP-Startadresse
 CCPRD1: LD   (DMA),HL
@@ -160,13 +174,17 @@ CCPRD1: LD   (DMA),HL
         POP  HL
         LD   BC,128
         ADD  HL,BC
+IFDEF FLOPPY
         LD   A,0E5H
+ELSE
+        LD   A,0F5H
+ENDIF
         CP   H
-        JR   NC,CCPRD1    ;0E600H noch nicht erreicht
+        JR   NC,CCPRD1    ;0E600H/0F600H noch nicht erreicht
         RET
 ;
-; Test der RAM-Disk - Größe (256 / 512 / 1024 / 2048 KByte)
-; -------------------------
+; Test der RAM-Disk - Size (256 / 512 / 1024 / 2048 KByte)
+; ------------------------
 ;
 RDTEST: XOR  A            ;Kapazitaet der RAM-Disk testen
         OUT  (RDADR+6),A  ;H-Adresse ruecksetzen
@@ -253,4 +271,4 @@ TICK:   DEFB 2DH,00H
 INITOK: DEFM '> Init. O.K.'
         DEFB 0DH,0AH,00H
 ;
-
+

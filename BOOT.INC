@@ -4,7 +4,7 @@
 ;       *              *
 ;       ****************
 ;
-;24.01.2023
+;10.04.2024
 ;
 BOOT:   DI
         LD   SP,80H
@@ -66,12 +66,18 @@ BOOT3:  PUSH IX           ;RAM-Disk Text --> HL
         CALL OUTTXT
 ;
         CALL INITRD       ;RAM-Disk Initialisierung
+        IFDEF FLOPPY
         CALL INITFD       ;FDC initialisieren
+        ELSE
+        CALL CCPWR        ;CCP + BDOS --> RAM-Disk
+        ENDIF
 ;
         XOR  A
-        LD   (3),A        ;IOBYTE
-        LD   (4),A        ;akt. LW
+        LD   (IOBYTE),A   ;IOBYTE
+        LD   (LWBYTE),A   ;akt. LW
+        IFDEF FLOPPY
         LD   (BLTEST),A   ;HST-Kennung ruecksetzen
+        ENDIF
 ;
         DI
         LD   SP,80H
@@ -80,8 +86,19 @@ BOOT3:  PUSH IX           ;RAM-Disk Text --> HL
 WBOOT:  DI
         LD   SP,80H
         CALL CCPRD        ;CCP + BDOS laden
+        LD   A,(NDISK)    ;Anzahl der LW
+        LD   C,A
+        LD   A,(LWBYTE)
+        AND  0FH          ;LW testen
+        CP   C
+        JR   C,WBOOT1     ;akt. LW < NDISK
+        LD   A,(LWBYTE)
+        AND  0F0H         ;LW ruecksetzen
+        LD   (LWBYTE),A
 WBOOT1: XOR  A
+        IFDEF FLOPPY
         LD   (CTAB),A     ;letzter FDC-Befehl
+        ENDIF
         LD   A,0C3H
         LD   (0),A        ;JP WBOOT eintragen
         LD   HL,BIOSWB
@@ -94,9 +111,9 @@ WBOOT1: XOR  A
         LD   (39H),HL
         LD   BC,80H
         CALL SETDMA       ;DMA --> 80H
-        LD   A,(4)
+        LD   A,(LWBYTE)
         LD   C,A          ;aktuelles LW
         EI
         JP   CCP          ;JP CCP
 ;
-
+

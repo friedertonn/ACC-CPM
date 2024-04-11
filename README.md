@@ -11,8 +11,9 @@ Für den CCP und das BDOS wurden CP/A-Assemblerdateien von Volker Pohlers verwen
 https://hc-ddr.hucki.net/wiki/doku.php/cpm/cpa
 
 Im BIOS wurden Änderungen vorgenommen:
-- Automatische Erkennung der RAM-Disk-Größe: 256/512/1024/2048 KByte
+- Automatische Erkennung der RAM-Disk-Größe: 256 / 512 / 1024 / 2048 KByte
 - Umschalten des Diskettenlaufwerks auf 780 / 800 KByte mit "DISK"
+- Der Floppy-Treiber kann im BIOS auskommentiert werden, der CCP beginnt dann bei 0E000h
 
 Das Assemblieren des Quellcodes erfolgt mit SUBMIT.COM:
 ```
