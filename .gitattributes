@@ -1,5 +1,5 @@
-*.ASM text eol=crlf
-*.LST text eol=crlf
+*.MAC text eol=crlf
+*.PRN text eol=crlf
 *.SUB text eol=crlf
-*.ASM linguist-language=Assembly linguist-detectable
-*.LST linguist-generated
+*.MAC linguist-language=Assembly linguist-detectable
+*.PRN linguist-generated
