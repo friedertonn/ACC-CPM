@@ -4,7 +4,7 @@
 ;       *              *
 ;       ****************
 ;
-;10.04.2024
+;17.10.2025
 ;
 BOOT:   DI
         LD   SP,80H
@@ -62,15 +62,13 @@ BOOT2:  LD   DE,DPB0
 BOOT3:  PUSH IX           ;RAM-Disk Text --> HL
         POP  HL
         CALL OUTTXT
-        LD   HL,TEXT1E    ;Text: "B:Floppy 780K"
+        LD   HL,TEXT1E    ;Text: "B:Floppy 780K ..."
         CALL OUTTXT
 ;
         CALL INITRD       ;RAM-Disk Initialisierung
-        IFDEF FLOPPY
-        CALL INITFD       ;FDC initialisieren
-        ELSE
+        IFNDEF FLOPPY
         CALL CCPWR        ;CCP + BDOS --> RAM-Disk
-        ENDIF
+        ENDIF             ;bei jedem BOOT ausgef.
 ;
         XOR  A
         LD   (IOBYTE),A   ;IOBYTE
@@ -78,6 +76,12 @@ BOOT3:  PUSH IX           ;RAM-Disk Text --> HL
         IFDEF FLOPPY
         LD   (BLTEST),A   ;HST-Kennung ruecksetzen
         ENDIF
+;
+; den FileCommander von 7600h auf 100h kopieren
+        LD   HL,7600H
+        LD   DE,0100H
+        LD   BC,5A00H     ;5A00h Bytes
+        LDIR
 ;
         DI
         LD   SP,80H
@@ -116,4 +120,4 @@ WBOOT1: XOR  A
         EI
         JP   CCP          ;JP CCP
 ;
-
+

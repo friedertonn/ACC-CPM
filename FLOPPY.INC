@@ -4,7 +4,7 @@
 ;       *                     *
 ;       ***********************
 ;
-;24.01.2024
+;17.10.2025
 ;
 ;Sectorberechnung Floppy
 ;-----------------------
@@ -69,7 +69,10 @@ INHEAD: LD   A,C
         SLA  B
         DEC  HL
         DEC  HL           ;UNIT
-        LD   (HL),B       ;Kopf n, LW 0
+        LD   A,(UNIT)
+        AND  3            ;Maske fuer LW 1-4
+        OR   B
+        LD   (HL),A       ;Kopf n, LW x
         POP  AF
         RET
 ;
@@ -115,6 +118,7 @@ WRFLO:  DI
         PUSH DE
         PUSH BC
         PUSH BC           ;C=1->Direktory schreiben
+        CALL INITFL       ;Floppy initialisieren
         XOR  A            ;Fehlermeldung loeschen
         LD   (RWTEST),A
         CALL CPSEC        ;Vergleich Sector
@@ -175,6 +179,7 @@ RDFLO:  DI
         PUSH HL
         PUSH DE
         PUSH BC
+        CALL INITFL       ;Floppy initialisieren
         CALL WRITE4       ;HST-Sec. schr. (A=0 bei
         LD   (RWTEST),A   ;fehlerfreiem schreiben)
         CALL CPSEC
@@ -206,10 +211,16 @@ MOTON:  PUSH HL
         LD   HL,STREG
         LD   A,(BLTEST)   ;Kennungstest
         OR   A
-        JR   Z,MOTON1     ;(neuen) Hostsector lesen
+        JR   Z,HSTRD      ;(neuen) Hostsector lesen
         LD   A,(CTAB2+1)  ;(alten) Hostsector schreiben
-MOTON1: SET  0,(HL)
-        LD   A,(HL)
+        JR   HSTWR
+HSTRD:  LD   A,(UNIT)
+HSTWR:  BIT  0,A          ;2 phys. LW
+        JR   NZ,MOTOR1
+        SET  0,(HL)
+        JR   MOTOR0
+MOTOR1: SET  3,(HL)
+MOTOR0: LD   A,(HL)
         OUT  (DL175),A
         POP  HL
 ONLOOP: CALL REGDEL
@@ -227,18 +238,21 @@ ONLOOP: CALL REGDEL
 MOTOFF: PUSH HL
         LD   HL,STREG
         RES  0,(HL)
+        RES  3,(HL)
         LD   A,(HL)
         OUT  (DL175),A
         POP  HL
         RET
 ;
-;Fehlerbehandlung
-;----------------
+;Precompensation einschalten
+;---------------------------
 ;
-DERR1:  LD   A,(STREG)
-        SET  5,A
-        RES  0,A          ;Motor aus
+PRECOM: PUSH HL           ;nicht genutzt
+        LD   HL,STREG
+        SET  2,(HL)
+        LD   A,(HL)
         OUT  (DL175),A
+        POP  HL
         RET
 ;
 ;Laufwerksstatus pruefen
@@ -388,16 +402,33 @@ ZEIT1:  DJNZ ZEIT1
 ;Treiberinitialisierung U8272 + Laufwerke
 ;----------------------------------------
 ;
-INITFD: CALL MOTON
+INITFL: LD   A,(DRIVE)    ;Floppy initialisieren
+        OR   A            ;Drive_0 oder Drive_1 seletiert?
+        RET  Z            ;nein
+        DEC  A
+        JR   NZ,INITF1    ;--> Drive_1
+        LD   A,(FLFLAG)
+        BIT  0,A          ;Drive_0 bereits initialisiert?
+        RET  NZ           ;ja
+        JR   INITF2
+INITF1: LD   A,(FLFLAG)
+        BIT  1,A          ;Drive_1 bereits initialisiert?
+        RET  NZ           ;ja
+INITF2: CALL MOTON
         LD   HL,STAB-1    ;Parameter laden
         LD   BC,0303H     ;3 Kommandos
         CALL WCOM1        ;03H+0E1H+33H
-RECAL:  LD   BC,0207H     ;Spur 0 einstellen
-        CALL RDY          ;07H+UNIT --> Floppy-LW
+INITF3: LD   BC,0207H     ;Spur 0 einstellen
+        CALL RDY          ;07H+UNIT --> Drive_0 / Drive_1
         CALL SENSE
         BIT  4,B          ;Spur 0 erreicht?
-        JR   NZ,RECAL
+        JR   NZ,INITF3
         CALL MOTOFF
+        LD   A,(DRIVE)    ;0x01 oder 0x02
+        LD   C,A
+        LD   A,(FLFLAG)
+        OR   C
+        LD   (FLFLAG),A   ;Init.-Flag setzen
         RET
 ;
 ;Pruefe Interruptstatus
@@ -480,6 +511,7 @@ RESLT:  DEFS 7,0          ;Resultattabelle f. FDC
 CTAB2:  DEFS 9,0
 BLTEST: DEFS 1,0          ;Host-Sector schreiben
 RWTEST: DEFS 1,0          ;fuer Fehlermeldungen
+FLFLAG: DEFB 0            ;Init.-Flag fuer Floppy
 FDMA:   DEFS 400H,0       ;Host-Sector
 ;
-
+

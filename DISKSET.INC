@@ -4,7 +4,7 @@
 ;       *                            *
 ;       ******************************
 ;
-;25.11.2022
+;23.10.2025
 ;
 DISK:   LD   A,(DSKSET)
         INC  A
@@ -31,9 +31,9 @@ DPB800: DEFW 80           ;80 Sectoren/Track
         DEFB 15
         DEFB 0
         DEFW 399          ;400 * 2 Kbyte - Bloecke
-        DEFW 127          ;128 DIR - Eintraege
-        DEFW 0C0H         ;2 DIR-Bloecke
-        DEFW 32
+        DEFW 191          ;192 DIR - Eintraege
+        DEFW 0E0H         ;3 DIR-Bloecke
+        DEFW 48
         DEFW 0            ;0 Kbyte System
 ;
         DEFW 0

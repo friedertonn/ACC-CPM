@@ -6,25 +6,26 @@
 ;       *                                                              *
 ;       *  ACC-BIOS fuer den AC1-2010                                  *
 ;       *                                                              *
-;       *  10.04.2024                                                  *
+;       *  23.10.2025                                                  *
 ;       *                                                              *
-;       *  LW A: Praecitronic RAM-Disk 256 KByte                       *
-;       *  LW B: Floppylaufwerk MFM1.6 780 KByte                       *
+;       *  LW A: Praecitronic RAM-Disk 256 - 2048 KByte                *
+;       *  LW B: Floppylaufwerk MFM1.6 780/800 KByte                   *
+;       *  LW C: Floppylaufwerk MFM1.6 800 KByte                       *
 ;       *  Tastatur mit Interruptsteuerung                             *
 ;       *  Bildschirmausgabe nach ACC-Dresden                          *
 ;       *  automatische RAM-Disk Groessenerkennung 256K bis 2048K      *
-;       *  Umschaltung Diskettenformat 780K/800K mit dem DISK-Befehl   *
+;       *  Umschaltung LW B: 780K/800K mit dem 'DISK'-Befehl           *
 ;       *                                                              *
 ;       ****************************************************************
 ;
-FLOPPY  EQU  1            ;BIOS mit RamDisk A: und Floppy B:
+FLOPPY  EQU  1            ;BIOS mit RamDisk A: und Floppy B: und C:
 ;
         IF1
         .PRINTX 'PASS 1'
         IFDEF FLOPPY
-        .PRINTX 'BIOS mit RamDisk A: und Floppy B:'
+        .PRINTX 'BIOS mit RamDisk A: und Floppy B:, C:'
         ELSE
-        .PRINTX 'BIOS mit RamDisk A: (kein Floppy-LW)'
+        .PRINTX 'BIOS mit RamDisk A: (kein Floppy-Drive)'
         ENDIF
         ENDIF
 ;
@@ -33,7 +34,7 @@ FLOPPY  EQU  1            ;BIOS mit RamDisk A: und Floppy B:
         ENDIF
 ;
 IOBYTE  EQU  0003H
-LWBYTE  EQU  0004H        ;LW (Bit0-3) + USER Nr.(Bit4-7)
+LWBYTE  EQU  0004H        ;LW (Bit 0-3) + USER Nr.(Bit 4-7)
 GETCO   EQU  07FDH        ;Ruecksprung in den AC1-Monitor
 IFDEF FLOPPY
 CCP     EQU  0D000H       ;Startadresse CCP = 0D000h mit Floppy
@@ -75,7 +76,7 @@ BIOSWB: JP   WBOOT
         DEFM 'CPMAC'      ;fuer PC/BC Progr.
         JP   EXIT         ;EXIT-Kommando
         IFDEF FLOPPY
-        JP   DISK         ;DISK-Umschaltung 780K <--> 800K
+        JP   DISK         ;DISK-Umschaltung B: 780K <--> 800K
         ELSE
         JP   0000H
         ENDIF
@@ -88,7 +89,13 @@ SELDSK: LD   HL,0         ;HL=0 --> kein LW
         CP   E
         RET  NC           ;akt. LW >= NDISK
         LD   (DRIVE),A    ;Merker fuer akt. LW
-        LD   L,C
+        CP   0            ;RAM-Disk?
+        JR   Z,SELDS1
+        IFDEF FLOPPY
+        DEC  A
+        LD   (UNIT),A     ;Floppy-Drive 0=780K, 1=800K
+        ENDIF
+SELDS1: LD   L,C
         ADD  HL,HL
         ADD  HL,HL
         ADD  HL,HL
@@ -144,7 +151,8 @@ WRITE:  LD   A,(DRIVE)
         CP   0
         JP   Z,WRRDSK
         IFDEF FLOPPY
-        CP   1
+        DEC  A
+        AND  0FEH
         JP   Z,WRFLO
         ENDIF
         LD   A,1          ;ERROR
@@ -154,7 +162,8 @@ READ:   LD   A,(DRIVE)
         CP   0
         JP   Z,RDRDSK
         IFDEF FLOPPY
-        CP   1
+        DEC  A
+        AND  0FEH
         JP   Z,RDFLO
         ENDIF
         LD   A,1          ;ERROR
@@ -174,7 +183,7 @@ DERROR: LD   HL,TEXT2
 ERROR:  LD   HL,TEXT3
         CALL OUTTXT
         IFDEF FLOPPY
-        CALL DERR1        ;Floppy-Motor ausschalten
+        CALL MOTOFF       ;Floppy-Motor ausschalten
         ENDIF
         JP   WBOOT
 ;
@@ -192,7 +201,7 @@ TXTEND: POP  BC
         RET
 ;
 TEXT1:  DEFB 0CH,1BH,03H,0BH
-        DEFM ' CP/M 2.2  Version 1.50 fuer den AC1-2010 '
+        DEFM ' CP/M 2.2  Version 1.51 fuer den AC1-2010 '
         DEFB 0DH,0AH,0AH,0AH
         DEFM 'A:RAM-Disk '
         DEFB 00H
@@ -205,7 +214,7 @@ TEXT1C: DEFM "1024K"
 TEXT1D: DEFM "2048K"
         DEFB 00H
 IFDEF FLOPPY
-TEXT1E: DEFM '  B:Floppy 780K  '
+TEXT1E: DEFM '  B:Floppy 780K  C:Floppy 800K  '
 ELSE
 TEXT1E: DEFM ' (System-Track=255)  '
 ENDIF
@@ -234,9 +243,18 @@ IFDEF FLOPPY
         DEFW DPB1
         DEFW CHK1
         DEFW ALL1
+;
+        DEFW 0            ;Floppy 800K
+        DEFW 0
+        DEFW 0
+        DEFW 0
+        DEFW DIRBF
+        DEFW DPB2
+        DEFW CHK2
+        DEFW ALL2
 ENDIF
 ;
-;Disk-Parameter-Block  RAM-Disk 256K
+;Disk-Parameter-Block  RAM-Disk A: 256K
 ;
 DPB0:   DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
         DEFB 3            ;Blockgroesse = 1 Kbyte
@@ -250,9 +268,10 @@ DPB0:   DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
 ;
         DEFW 0
 ;
-;Disk-Parameter-Block  Floppy 780K
-;
 IFDEF FLOPPY
+;
+;Disk-Parameter-Block  Floppy B: 780K
+;
 DPB1:   DEFW 80           ;80 Sectoren/Track
         DEFB 4            ;Blockgroesse = 2 Kbyte
         DEFB 15
@@ -262,6 +281,21 @@ DPB1:   DEFW 80           ;80 Sectoren/Track
         DEFW 0C0H         ;pro DIR-Block 1Bit gesetzt
         DEFW 32
         DEFW 2            ;20 Kbyte System
+;
+        DEFW 0
+;
+;
+;Disk-Parameter-Block  Floppy C: 800K
+;
+DPB2:   DEFW 80           ;80 Sectoren/Track
+        DEFB 4            ;Blockgroesse = 2 Kbyte
+        DEFB 15
+        DEFB 0
+        DEFW 399          ;400 * 2 Kbyte - Bloecke
+        DEFW 191          ;192 DIR - Eintraege
+        DEFW 0E0H         ;3 DIR-Bloecke
+        DEFW 48
+        DEFW 0            ;0 Kbyte System
 ;
         DEFW 0
 ENDIF
@@ -325,7 +359,7 @@ EXIT1:  LD   (HL),20H     ;letzte BS-Zeile loeschen
 ; RAM-Zellen
 ;
 IFDEF FLOPPY
-NDISK:  DEFB 2            ;Anzahl der LW
+NDISK:  DEFB 3            ;Anzahl der LW
 ELSE
 NDISK:  DEFB 1            ;Anzahl der LW
 TRACK:  DEFB 0            ;FLOPPY.INC ist ausgeblendet
@@ -339,6 +373,8 @@ ALL0:   DEFS 128,0        ;Anzahl der Bit's = Anzahl der
 IFDEF FLOPPY
 ALL1:   DEFS 50,0         ;Bloecke, die zu verwalten sind
 CHK1:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
+ALL2:   DEFS 50,0         ;Bloecke, die zu verwalten sind
+CHK2:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
 ENDIF
 ;
 SAVSTK: DEFS 80H,0
@@ -349,4 +385,4 @@ BIOSTK:
         .DEPHASE
         END
 ;
-
+

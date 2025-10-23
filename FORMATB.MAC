@@ -1,0 +1,396 @@
+;*******************************************
+;*                                         *
+;*  FORMATPROGRAMM fuer Disketten (c) ACC  *
+;*                                         *
+;*  Frieder Tonn  23.10.2025      Drive B  *
+;*                                         *
+;*******************************************
+;
+        PAGE 64
+        IF1
+        .PRINTX 'PASS 1'
+        ENDIF
+;
+        IF2
+        .PRINTX 'PASS 2'
+        ENDIF
+;
+        .CREF
+        .Z80
+;
+WBOOT   EQU  00000H
+CONST   EQU  0E606H
+CONIN   EQU  0E609H
+CONOUT  EQU  0E60CH
+;
+CFDC    EQU  40H
+DFDC    EQU  41H
+DL175   EQU  44H          ;ehem. 48H
+;
+        .PHASE 0100H
+;
+        JP   START
+;
+ANFTXT: DEFB 82H,0DH,0AH,0DH,0AH
+        DEFM "  Formatieren der Floppy-Disk B:"
+        DEFB 0DH,0AH
+        DEFM "  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        DEFB 0DH,0AH,0DH,0AH
+        DEFM "  "
+        DEFB 85H
+        DEFM "Drive B:"
+        DEFB 84H
+        DEFM " , MFM , DS , DD"
+        DEFB 0DH,0AH
+        DEFM "  1024 Byte/Sec , 5 Sec/Track"
+        DEFB 0DH,0AH,0DH,0AH
+        DEFM "  Richtige Disk? (J/N): "
+        DEFB 00H
+;
+YESTXT: DEFM "Ja"
+        DEFB 83H,0DH,0AH,0DH,0AH,00H
+;
+NOTXT:  DEFM "Nein"
+        DEFB 00H
+;
+FORTXT: DEFB 18H
+        DEFM "  Spur: "
+BSSPUR: DEFM "00    Kopf: "
+BSKOPF: DEFB "0",00H
+;
+ERRTXT: DEFM " Error"
+        DEFB 0DH,0AH,82H,00H
+;
+BRKTXT: DEFB 0DH,0AH,0DH,0AH
+        DEFM "  A b b r u c h"
+        DEFB 00H
+;
+ENDTXT: DEFB 0DH,0AH,82H,00H
+;
+NEXTXT: DEFB 18H,82H
+        DEFM "  Noch eine Disk? (J/N): "
+        DEFB 00H
+
+START:  LD   SP,0100H
+        LD   HL,ANFTXT
+        CALL OUTTXT
+        CALL CONIN
+        AND  0DFH         ;UPCASE
+        CP   "J"
+        JP   NZ,BREAK1
+        LD   HL,YESTXT
+        CALL OUTTXT
+        LD   IY,FTAB
+        XOR  A
+        LD   HL,LATPU
+        LD   (HL),A
+        LD   (SPURPU),A
+        INC  HL
+        LD   (HL),A       ;(CTAB):=0
+        INC  HL
+        LD   (HL),0       ;(UNIT):=0 === Floppy-LW B: ===
+        CALL DERR1        ;Reset FDC?
+        CALL MOTON
+        CALL INIFD
+        CALL INIFD
+        LD   C,00H        ;Spur
+        LD   B,(IY+00H)   ;Bytes/Sector
+        LD   D,(IY+02H)   ;Luecke
+FZYK:   LD   E,00H        ;Kopf
+        CALL STOP
+        LD   HL,UNIT
+        LD   (HL),E
+        SLA  (HL)         ;stellen Headselectbit
+        SLA  (HL)         ;(UNIT):=E*4
+        RES  0,(HL)       ;=== Floppy-LW B: ===
+        INC  HL
+        LD   (HL),C       ;(TRACK):=C
+        PUSH BC
+        CALL SEEK
+        POP  BC
+        CALL PSPUR
+FZYK1:  CALL PKOPF
+        LD   HL,FORTXT
+        CALL OUTTXT
+        LD   HL,TABEND
+        LD   A,(IY+01H)   ;Sectoren/Spur
+        PUSH AF
+MFZ1:   LD   (HL),B       ;(HL):=Bytes/Sector
+        DEC  HL
+        LD   (HL),A       ;(HL):=Sectornr.
+        DEC  HL
+        LD   (HL),E       ;(HL):=Kopfnr.
+        DEC  HL
+        LD   (HL),C       ;(HL):=Spurnr.
+        DEC  HL
+        DEC  A            ;nae. Sector
+        JR   NZ,MFZ1
+        LD   (HL),0E5H    ;(HL):=Fuellbyte
+        DEC  HL
+        LD   (HL),D       ;(HL):=Luecke
+        DEC  HL
+        POP  AF
+        LD   (HL),A       ;(HL):=Sectoren/Spur
+        DEC  HL                                        
+        LD   (HL),B       ;(HL):=Bytes/Sector
+        DEC  HL
+        SLA  E
+        SLA  E
+        LD   (HL),E       ;(HL)=(UNIT)
+        RES  0,(HL)       ;=== Floppy-LW B: ===
+        DEC  HL
+        PUSH BC
+        LD   B,06H        ;6 Kommandobytes
+        LD   C,4DH        ;Komm.FORMAT A TRACK
+        CALL WCOM1                                     
+        CALL WFARG                                     
+        CALL TC                                        
+        CALL RRSLT
+        POP  BC
+        JP   NZ,ERROR                                  
+        LD   A,E          ;Kopf                         
+        OR   A
+        LD   E,01H        ;Kopf = 1
+        JR   Z,FZYK1      ;2. Diskseite                
+        INC  C            ;naechste Spur                
+        LD   A,C                                       
+        CP   80           ;fertig ?                    
+        JR   NZ,FZYK                                   
+        CALL RECAL
+        CALL RECAL
+        CALL MOTOFF
+        LD   HL,NEXTXT
+        CALL OUTTXT
+        CALL CONIN
+        AND  0DFH         ;UPCASE
+        CP   "J"
+        JP   NZ,QUIT
+        LD   HL,YESTXT
+        CALL OUTTXT
+        JP   START
+QUIT:   LD   HL,NOTXT
+        CALL OUTTXT
+        JP   END
+;------------------------
+FTAB:   DEFB 03H,05H,50H,14H  ;5*1024
+;------------------------
+MOTON:  PUSH HL
+        LD   HL,LATPU
+        SET  0,(HL)       ;=== Floppy-LW B: ===
+        LD   A,(HL)
+        OUT  (DL175),A
+        POP  HL
+        PUSH BC
+        LD   BC,0
+MS600:  DEC  BC
+        LD   A,(0)        ;Fuellbefehl
+        LD   A,B
+        OR   C
+        JR   NZ,MS600
+        POP  BC
+        RET
+;------------------------
+MOTOFF: PUSH HL
+        LD   HL,LATPU
+        RES  0,(HL)       ;=== Floppy-LW B: ===
+        LD   A,(HL)
+        OUT  (DL175),A
+        POP  HL
+        RET
+;------------------------
+TC:     LD   A,(LATPU)
+        SET  4,A
+        OUT  (DL175),A
+        RET
+;------------------------
+DERR1:  LD   A,(LATPU)    ;Reset FDC?
+        SET  5,A
+        OUT  (DL175),A
+        RET
+;------------------------
+SDS:    LD   BC,0204H
+        CALL WCOM
+        CALL RBYTE
+        RET
+;------------------------
+SEEK:   LD   BC,030FH
+        CALL RDY
+        CALL SENSE
+MS1:    IN   A,(CFDC)
+        AND  0FH
+        JR   NZ,MS1
+        RET
+;------------------------
+RDY:    PUSH BC
+        CALL SDS
+        POP  BC
+        BIT  5,A
+        CALL Z,ERROR
+WCOM:   LD   HL,CTAB
+WCOM1:  CALL DELAY
+        IN   A,(CFDC)
+        AND  0C0H
+        CP   80H
+        JR   NZ,WCOM1
+        LD   A,C
+        OUT  (DFDC),A
+        INC  HL
+        LD   C,(HL)
+        DJNZ WCOM1
+        RET
+;------------------------
+DELAY:  PUSH BC
+        LD   B,0FH
+DEL1:   DJNZ DEL1
+        POP  BC
+        RET
+;------------------------
+RBYTE:  CALL DELAY
+        CALL IRDY
+        IN   A,(DFDC)
+        RET
+;------------------------
+RRSLT:  LD   B,07H
+        LD   C,41H
+        LD   HL,RSLT
+        PUSH HL
+RESL1:  IN   A,(CFDC)
+        RLCA
+        JP   NC,RESL1
+        INI
+        RLCA
+        JP   NC,ERROR
+        JP   NZ,RESL1
+        POP  HL
+        LD   A,(HL)
+        AND  0C0H
+        RET
+;------------------------
+IRDY:   IN   A,(CFDC)
+        RLCA
+        JR   NC,IRDY
+        AND  80H
+        RLCA
+        RET  C
+;------------------------
+ERROR:  LD   HL,ERRTXT
+        CALL OUTTXT
+        CALL MOTOFF
+        JP   WBOOT
+;------------------------
+STAB:   DEFB 0E1H
+        DEFB 33H
+;------------------------
+INIFD:  LD   B,00H
+MI1:    DJNZ MI1
+        IN   A,(CFDC)
+        CP   80H
+        JR   Z,MI2
+        IN   A,(DFDC)
+        JR   INIFD
+MI2:    LD   HL,STAB-1
+        LD   BC,0303H
+        CALL WCOM1
+RECAL:  LD   BC,0207H
+        CALL RDY
+SENSE:  LD   BC,0108H
+        CALL WCOM
+        CALL RBYTE
+        LD   B,A
+        CP   80H
+        CALL NZ,RBYTE
+        BIT  5,B
+        JR   Z,SENSE
+        RET
+;------------------------
+WFARG:  LD   C,DFDC
+        LD   B,(IY+03H)   ;Anzahl d. Argumente
+MWF1:   IN   A,(CFDC)
+        RLCA
+        JP   NC,MWF1
+        OUTI
+        JP   NZ,MWF1
+        RET
+;------------------------
+STOP:   PUSH AF
+        CALL CONST
+        OR   A
+        JR   Z,STPEND
+        CALL CONIN
+        CP   03H
+        JR   Z,BREAK2
+STPEND: POP  AF
+        RET
+;------------------------
+BREAK1: LD   HL,NOTXT
+        CALL OUTTXT
+BREAK2: LD   HL,BRKTXT
+        CALL OUTTXT
+        CALL MOTOFF
+END:    LD   HL,ENDTXT
+        CALL OUTTXT
+        JP   WBOOT
+;------------------------
+PSPUR:  PUSH AF
+        PUSH HL
+        LD   A,(SPURPU)
+        INC  A
+        DAA
+        LD   (SPURPU),A
+        LD   HL,BSSPUR
+        PUSH AF
+        SRL  A
+        SRL  A
+        SRL  A
+        SRL  A
+        OR   30H
+        LD   (HL),A
+        INC  HL
+        POP  AF
+        AND  0FH
+        OR   30H
+        LD   (HL),A
+        POP  HL
+        POP  AF
+        RET
+;------------------------
+PKOPF:  PUSH AF
+        PUSH HL
+        LD   HL,BSKOPF
+        LD   A,E
+        CP   01H
+        LD   A,"1"
+        JR   Z,MPK1
+        DEC  A
+MPK1:   LD   (HL),A
+        POP  HL
+        POP  AF
+        RET
+;------------------------
+OUTTXT: PUSH AF
+        PUSH BC
+TXTLOP: LD   A,(HL)
+        CP   0
+        JR   Z,TXTEND
+        LD   C,A
+        CALL CONOUT
+        INC  HL
+        JR   TXTLOP
+TXTEND: POP  BC
+        POP  AF
+        RET
+;------------------------
+SPURPU: DEFB 0
+LATPU:  DEFB 0
+CTAB:   DEFB 0
+UNIT:   DEFB 0
+TRACK:  DEFB 0
+        DEFB 0
+RSLT:   DEFS 7,0
+        DEFS 40,0
+TABEND:
+;
+        .DEPHASE
+        END
+;
+

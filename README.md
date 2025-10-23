@@ -12,13 +12,37 @@ https://hc-ddr.hucki.net/wiki/doku.php/cpm/cpa
 
 Im BIOS wurden Änderungen vorgenommen:
 - Automatische Erkennung der RAM-Disk-Größe: 256 / 512 / 1024 / 2048 KByte
-- Umschalten des Diskettenlaufwerks auf 780 / 800 KByte mit "DISK"
+- Es werden 2 phys. Diskettenlaufwerke unterstützt: B: 780 / 800 KByte, C: 800 KByte
+- Umschalten des Diskettenlaufwerks B: auf 780 / 800 KByte mit "DISK"
 - Der Floppy-Treiber kann im BIOS auskommentiert werden, der CCP beginnt dann bei 0E000h
 
 Das Assemblieren des Quellcodes erfolgt mit SUBMIT.COM:
 ```
 SUBMIT BIOS
 ```
+
+Kompilierte Binärdateien sind im Verzeichnis https://github.com/friedertonn/ACC-CPM/releases abgelegt.
+
+**CPM51.Z80** ist die Standard-Version und wird aus dem AC1-Monitor mit dem Befehl J E600 gestartet.
+Sie setzt voraus, dass in der RAM-Disk oder auf den Disketten bereits Dateien gespeichert sind.
+```
+J E600
+```
+
+**CPM51FC.Z80** ist die Version mit eingebauten FileCommander. 
+Diese Version kann verwendet werden, um benötigte Dateien vom USB-Stick zu laden. 
+```
+J E600
+SAVE 90 FC.COM
+FC
+```
+
+**CPM51RD.Z80** ist eine Minimal-Version ohne Unterstützung von Floppy-Laufwerken. Die Größe des TPA beträgt hier 56KByte.
+```
+J F600
+```
+
+Die Programme **FORMATB.COM** und **FORMATC.COM** können zum Formatieren der Disketten verwendet werden.
 
 Nachfolgend ein Bildschirmcopy von ACC-CPM im JKCEMU:
 
