@@ -1,8 +1,5 @@
-*.MAC text eol=crlf
-*.INC text eol=crlf
-*.PRN text eol=crlf
-*.SUB text eol=crlf
-*.MAC linguist-language=Assembly linguist-detectable
-*.INC linguist-language=Assembly linguist-detectable
-*.PRN linguist-generated
-*.SUB linguist-generated
+*.MAC linguist-language=Assembly
+*.INC linguist-language=Assembly
+*.PRN linguist-detectable=false
+*.SUB linguist-detectable=false
+*.PNG linguist-detectable=false
