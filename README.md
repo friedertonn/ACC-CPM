@@ -23,13 +23,13 @@ SUBMIT BIOS
 
 Kompilierte Binärdateien sind im Verzeichnis https://github.com/friedertonn/ACC-CPM/releases abgelegt.
 
-**CPM51.Z80** ist die Standard-Version und wird aus dem AC1-Monitor mit dem Befehl J E600 gestartet.
+**CPM52.Z80** ist die Standard-Version und wird aus dem AC1-Monitor mit dem Befehl J E600 gestartet.
 Sie setzt voraus, dass in der RAM-Disk oder auf den Disketten bereits Dateien gespeichert sind.
 ```
 J E600
 ```
 
-**CPM51FC.Z80** ist die Version mit eingebauten FileCommander. 
+**CPM52FC.Z80** ist die Version mit eingebauten FileCommander. 
 Diese Version kann verwendet werden, um benötigte Dateien vom USB-Stick zu laden. 
 ```
 J E600
@@ -37,7 +37,7 @@ SAVE 90 FC.COM
 FC
 ```
 
-**CPM51RD.Z80** ist eine Minimal-Version ohne Unterstützung von Floppy-Laufwerken. Die Größe des TPA beträgt hier 56KByte.
+**CPM52RD.Z80** ist eine Minimal-Version ohne Unterstützung von Floppy-Laufwerken. Die Größe des TPA beträgt hier 56KByte.
 ```
 J F600
 ```

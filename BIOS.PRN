@@ -10,7 +10,7 @@
                                 ;       *                                                              *
                                 ;       *  ACC-BIOS fuer den AC1-2010                                  *
                                 ;       *                                                              *
-                                ;       *  23.10.2025                                                  *
+                                ;       *  14.11.2025                                                  *
                                 ;       *                                                              *
                                 ;       *  LW A: Praecitronic RAM-Disk 256 - 2048 KByte                *
                                 ;       *  LW B: Floppylaufwerk MFM1.6 780/800 KByte                   *
@@ -64,51 +64,51 @@
 	MACRO-80 3.44	09-Dec-81	PAGE	1-1
 
 
-  E606    C3 F224                       JP   CONST
-  E609    C3 F1D8                       JP   CONIN
-  E60C    C3 F05F                       JP   CONOUT
-  E60F    C3 F2C9                       JP   LIST
-  E612    C3 F2CF                       JP   PUNCH
-  E615    C3 F2D2                       JP   READER
+  E606    C3 F227                       JP   CONST
+  E609    C3 F1DB                       JP   CONIN
+  E60C    C3 F062                       JP   CONOUT
+  E60F    C3 F2CC                       JP   LIST
+  E612    C3 F2D2                       JP   PUNCH
+  E615    C3 F2D5                       JP   READER
   E618    C3 E66A                       JP   HOME
   E61B    C3 E641                       JP   SELDSK
   E61E    C3 E66C                       JP   SETTRK
   E621    C3 E665                       JP   SETSEC
   E624    C3 E671                       JP   SETDMA
-  E627    C3 F2B8                       JP   READ
-  E62A    C3 F2A7                       JP   WRITE
-  E62D    C3 F2CC                       JP   LISTST
+  E627    C3 F2BB                       JP   READ
+  E62A    C3 F2AA                       JP   WRITE
+  E62D    C3 F2CF                       JP   LISTST
   E630    C3 E660                       JP   SECTRN
                                 ;
   E633    43 50 4D 41                   DEFM 'CPMAC'      ;fuer PC/BC Progr.
   E637    43                    
-  E638    C3 F411                       JP   EXIT         ;EXIT-Kommando
+  E638    C3 F414                       JP   EXIT         ;EXIT-Kommando
                                         IFDEF FLOPPY
-  E63B    C3 E770                       JP   DISK         ;DISK-Umschaltung B: 780K <--> 800K
+  E63B    C3 E773                       JP   DISK         ;DISK-Umschaltung B: 780K <--> 800K
                                         ELSE
                                         JP   0000H
                                         ENDIF
   E63E    C3 0000                       JP   0000H        ;3. User-Befehl
                                 ;
   E641    21 0000               SELDSK: LD   HL,0         ;HL=0 --> kein LW
-  E644    3A F437                       LD   A,(NDISK)    ;Anzahl der LW
+  E644    3A F43A                       LD   A,(NDISK)    ;Anzahl der LW
   E647    5F                            LD   E,A
   E648    79                            LD   A,C          ;C = akt. LW
   E649    BB                            CP   E
   E64A    D0                            RET  NC           ;akt. LW >= NDISK
-  E64B    32 F438                       LD   (DRIVE),A    ;Merker fuer akt. LW
+  E64B    32 F43B                       LD   (DRIVE),A    ;Merker fuer akt. LW
   E64E    FE 00                         CP   0            ;RAM-Disk?
   E650    28 04                         JR   Z,SELDS1
                                         IFDEF FLOPPY
   E652    3D                            DEC  A
-  E653    32 EAB5                       LD   (UNIT),A     ;Floppy-Drive 0=780K, 1=800K
+  E653    32 EAB8                       LD   (UNIT),A     ;Floppy-Drive 0=780K, 1=800K
                                         ENDIF
   E656    69                    SELDS1: LD   L,C
   E657    29                            ADD  HL,HL
   E658    29                            ADD  HL,HL
   E659    29                            ADD  HL,HL
   E65A    29                            ADD  HL,HL
-  E65B    11 F381                       LD   DE,DPH
+  E65B    11 F384                       LD   DE,DPH
   E65E    19                            ADD  HL,DE        ;zugeordneter DPH --> HL
   E65F    C9                            RET
                                 ;
@@ -118,18 +118,18 @@
   E664    C9                            RET
                                 ;
   E665    79                    SETSEC: LD   A,C
-  E666    32 EAAE                       LD   (SECTOR),A
+  E666    32 EAB1                       LD   (SECTOR),A
   E669    C9                            RET
                                 ;
   E66A    0E 00                 HOME:   LD   C,0
   E66C    79                    SETTRK: LD   A,C
-  E66D    32 EAB6                       LD   (TRACK),A
+  E66D    32 EAB9                       LD   (TRACK),A
 	MACRO-80 3.44	09-Dec-81	PAGE	1-2
 
 
   E670    C9                            RET
                                 ;
-  E671    ED 43 EAAF            SETDMA: LD   (DMA),BC
+  E671    ED 43 EAB2            SETDMA: LD   (DMA),BC
   E675    C9                            RET
                                 ;
   E676                          PLATZ:  DEFS BIOS+80H-PLATZ-5,0
@@ -139,7 +139,7 @@
   E67E    E680                  TZIN:   DEFW TAPU         ;Eingabezeiger
   E680                          TAPU:   DEFS 8,0          ;Tastatur-Ringpuffer
                                 ;
-  E688    F23C                  IV:     DEFW INTA         ;Int.-Vektor fuer CONIN (PIO)
+  E688    F23F                  IV:     DEFW INTA         ;Int.-Vektor fuer CONIN (PIO)
                                 ;
                                         .PRINTX '--> BOOT'
                          C      $INCLUDE BOOT.INC
@@ -149,7 +149,7 @@
                          C      ;       *              *
                          C      ;       ****************
                          C      ;
-                         C      ;17.10.2025
+                         C      ;14.11.2025
                          C      ;
   E68A    F3             C      BOOT:   DI
   E68B    31 0080        C              LD   SP,80H
@@ -182,38 +182,38 @@
   E6BD    3E 01          C              LD   A,CPMMOD
   E6BF    D3 1E          C              OUT  (MAP),A
                          C      ;
-  E6C1    21 F2F8        C              LD   HL,TEXT1     ;Systemueberschrift
-  E6C4    CD F2E7        C              CALL OUTTXT
-  E6C7    CD EFCC        C              CALL RDTEST       ;Kapazitaet der RAM-Disk bestimmen
-  E6CA    3A EED5        C              LD   A,(RDSIZE)   ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
-  E6CD    21 F402        C              LD   HL,DP2048    ;DPB 2048K RAM-Disk
+  E6C1    21 F2FB        C              LD   HL,TEXT1     ;Systemueberschrift
+  E6C4    CD F2EA        C              CALL OUTTXT
+  E6C7    CD EFCF        C              CALL RDTEST       ;Kapazitaet der RAM-Disk bestimmen
+  E6CA    3A EED8        C              LD   A,(RDSIZE)   ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
+  E6CD    21 F405        C              LD   HL,DP2048    ;DPB 2048K RAM-Disk
 	MACRO-80 3.44	09-Dec-81	PAGE	1-3
 
 
-  E6D0    DD 21 F346     C              LD   IX,TEXT1D    ;Text: "A:RAM-Disk 2048K"
+  E6D0    DD 21 F349     C              LD   IX,TEXT1D    ;Text: "A:RAM-Disk 2048K"
   E6D4    FE 03          C              CP   3
   E6D6    28 1C          C              JR   Z,BOOT2
-  E6D8    21 F3F3        C              LD   HL,DP1024    ;DPB 1024K RAM-Disk
-  E6DB    DD 21 F340     C              LD   IX,TEXT1C    ;Text: "A:RAM-Disk 1024K"
+  E6D8    21 F3F6        C              LD   HL,DP1024    ;DPB 1024K RAM-Disk
+  E6DB    DD 21 F343     C              LD   IX,TEXT1C    ;Text: "A:RAM-Disk 1024K"
   E6DF    FE 02          C              CP   2
   E6E1    28 11          C              JR   Z,BOOT2
-  E6E3    21 F3E4        C              LD   HL,DP512     ;DPB 512K RAM-Disk
-  E6E6    DD 21 F33B     C              LD   IX,TEXT1B    ;Text: "A:RAM-Disk 512K"
+  E6E3    21 F3E7        C              LD   HL,DP512     ;DPB 512K RAM-Disk
+  E6E6    DD 21 F33E     C              LD   IX,TEXT1B    ;Text: "A:RAM-Disk 512K"
   E6EA    FE 01          C              CP   1
   E6EC    28 06          C              JR   Z,BOOT2
-  E6EE    DD 21 F336     C              LD   IX,TEXT1A    ;Text: "A:RAM-Disk 256K"
+  E6EE    DD 21 F339     C              LD   IX,TEXT1A    ;Text: "A:RAM-Disk 256K"
   E6F2    18 08          C              JR   BOOT3        ;256K RAM-Disk, kein LDIR
                          C      ;        
-  E6F4    11 F3B1        C      BOOT2:  LD   DE,DPB0
+  E6F4    11 F3B4        C      BOOT2:  LD   DE,DPB0
   E6F7    01 000F        C              LD   BC,15
   E6FA    ED B0          C              LDIR
   E6FC    DD E5          C      BOOT3:  PUSH IX           ;RAM-Disk Text --> HL
   E6FE    E1             C              POP  HL
-  E6FF    CD F2E7        C              CALL OUTTXT
-  E702    21 F34C        C              LD   HL,TEXT1E    ;Text: "B:Floppy 780K ..."
-  E705    CD F2E7        C              CALL OUTTXT
+  E6FF    CD F2EA        C              CALL OUTTXT
+  E702    21 F34F        C              LD   HL,TEXT1E    ;Text: "B:Floppy 780K ..."
+  E705    CD F2EA        C              CALL OUTTXT
                          C      ;
-  E708    CD EF1A        C              CALL INITRD       ;RAM-Disk Initialisierung
+  E708    CD EF1D        C              CALL INITRD       ;RAM-Disk Initialisierung
                          C              IFNDEF FLOPPY
                          C              CALL CCPWR        ;CCP + BDOS --> RAM-Disk
                          C              ENDIF             ;bei jedem BOOT ausgef.
@@ -222,7 +222,7 @@
   E70C    32 0003        C              LD   (IOBYTE),A   ;IOBYTE
   E70F    32 0004        C              LD   (LWBYTE),A   ;akt. LW
                          C              IFDEF FLOPPY
-  E712    32 EACE        C              LD   (BLTEST),A   ;HST-Kennung ruecksetzen
+  E712    32 EAD1        C              LD   (BLTEST),A   ;HST-Kennung ruecksetzen
                          C              ENDIF
                          C      ;
                          C      ; den FileCommander von 7600h auf 100h kopieren
@@ -233,43 +233,46 @@
                          C      ;
   E720    F3             C              DI
   E721    31 0080        C              LD   SP,80H
-  E724    18 1B          C              JR   WBOOT1       ;CCP-Read ueberspringen
+  E724    18 1E          C              JR   WBOOT1       ;CCP-Read ueberspringen
                          C      ;
   E726    F3             C      WBOOT:  DI
   E727    31 0080        C              LD   SP,80H
-  E72A    CD EFAA        C              CALL CCPRD        ;CCP + BDOS laden
-  E72D    3A F437        C              LD   A,(NDISK)    ;Anzahl der LW
-  E730    4F             C              LD   C,A
-  E731    3A 0004        C              LD   A,(LWBYTE)
-  E734    E6 0F          C              AND  0FH          ;LW testen
-  E736    B9             C              CP   C
-  E737    38 08          C              JR   C,WBOOT1     ;akt. LW < NDISK
-  E739    3A 0004        C              LD   A,(LWBYTE)
-  E73C    E6 F0          C              AND  0F0H         ;LW ruecksetzen
-  E73E    32 0004        C              LD   (LWBYTE),A
-  E741    AF             C      WBOOT1: XOR  A
                          C              IFDEF FLOPPY
-  E742    32 EAB4        C              LD   (CTAB),A     ;letzter FDC-Befehl
+  E72A    CD E8BA        C              CALL WRITE4       ;alten HST-Sector schr.
+                         C              ENDIF
+  E72D    CD EFAD        C              CALL CCPRD        ;CCP + BDOS laden
+  E730    3A F43A        C              LD   A,(NDISK)    ;Anzahl der LW
+  E733    4F             C              LD   C,A
+  E734    3A 0004        C              LD   A,(LWBYTE)
+  E737    E6 0F          C              AND  0FH          ;LW testen
+  E739    B9             C              CP   C
+  E73A    38 08          C              JR   C,WBOOT1     ;akt. LW < NDISK
+  E73C    3A 0004        C              LD   A,(LWBYTE)
+  E73F    E6 F0          C              AND  0F0H         ;LW ruecksetzen
+  E741    32 0004        C              LD   (LWBYTE),A
 	MACRO-80 3.44	09-Dec-81	PAGE	1-4
 
 
+  E744    AF             C      WBOOT1: XOR  A
+                         C              IFDEF FLOPPY
+  E745    32 EAB7        C              LD   (CTAB),A     ;letzter FDC-Befehl
                          C              ENDIF
-  E745    3E C3          C              LD   A,0C3H
-  E747    32 0000        C              LD   (0),A        ;JP WBOOT eintragen
-  E74A    21 E603        C              LD   HL,BIOSWB
-  E74D    22 0001        C              LD   (1),HL
-  E750    32 0005        C              LD   (5),A        ;JP BDOS eintragen
-  E753    21 D806        C              LD   HL,BDOS
-  E756    22 0006        C              LD   (6),HL
-  E759    32 0038        C              LD   (38H),A      ;JP ERROR eintragen
-  E75C    21 F2DB        C              LD   HL,ERROR
-  E75F    22 0039        C              LD   (39H),HL
-  E762    01 0080        C              LD   BC,80H
-  E765    CD E671        C              CALL SETDMA       ;DMA --> 80H
-  E768    3A 0004        C              LD   A,(LWBYTE)
-  E76B    4F             C              LD   C,A          ;aktuelles LW
-  E76C    FB             C              EI
-  E76D    C3 D000        C              JP   CCP          ;JP CCP
+  E748    3E C3          C              LD   A,0C3H
+  E74A    32 0000        C              LD   (0),A        ;JP WBOOT eintragen
+  E74D    21 E603        C              LD   HL,BIOSWB
+  E750    22 0001        C              LD   (1),HL
+  E753    32 0005        C              LD   (5),A        ;JP BDOS eintragen
+  E756    21 D806        C              LD   HL,BDOS
+  E759    22 0006        C              LD   (6),HL
+  E75C    32 0038        C              LD   (38H),A      ;JP ERROR eintragen
+  E75F    21 F2DE        C              LD   HL,ERROR
+  E762    22 0039        C              LD   (39H),HL
+  E765    01 0080        C              LD   BC,80H
+  E768    CD E671        C              CALL SETDMA       ;DMA --> 80H
+  E76B    3A 0004        C              LD   A,(LWBYTE)
+  E76E    4F             C              LD   C,A          ;aktuelles LW
+  E76F    FB             C              EI
+  E770    C3 D000        C              JP   CCP          ;JP CCP
                          C      ;
                                 ;
                                 IFDEF FLOPPY
@@ -283,67 +286,67 @@
                          C      ;
                          C      ;23.10.2025
                          C      ;
-  E770    3A E79B        C      DISK:   LD   A,(DSKSET)
-  E773    3C             C              INC  A
-  E774    CB 8F          C              RES  1,A
-  E776    32 E79B        C              LD   (DSKSET),A   ;0=800K, 1=780K
-  E779    21 E79C        C              LD   HL,DPB800
-  E77C    CB 47          C              BIT  0,A
-  E77E    28 03          C              JR   Z,DISK1
-  E780    21 E7AD        C              LD   HL,DPB780
-  E783    11 F3C2        C      DISK1:  LD   DE,DPB1      ;Disk Parameter Block LW B:
-  E786    01 0011        C              LD   BC,17
-  E789    ED B0          C              LDIR
-  E78B    21 E7BE        C              LD   HL,DSK800    ;800K Floppy-Disk
-  E78E    FE 00          C              CP   0
-  E790    28 03          C              JR   Z,DISK2
-  E792    21 E7D5        C              LD   HL,DSK780    ;780K Floppy-Disk
-  E795    CD F2E7        C      DISK2:  CALL OUTTXT
-  E798    C3 E726        C              JP   WBOOT        ;Warmstart
+  E773    3A E79E        C      DISK:   LD   A,(DSKSET)
+  E776    3C             C              INC  A
+  E777    CB 8F          C              RES  1,A
+  E779    32 E79E        C              LD   (DSKSET),A   ;0=800K, 1=780K
+  E77C    21 E79F        C              LD   HL,DPB800
+  E77F    CB 47          C              BIT  0,A
+  E781    28 03          C              JR   Z,DISK1
+  E783    21 E7B0        C              LD   HL,DPB780
+  E786    11 F3C5        C      DISK1:  LD   DE,DPB1      ;Disk Parameter Block LW B:
+  E789    01 0011        C              LD   BC,17
+  E78C    ED B0          C              LDIR
+  E78E    21 E7C1        C              LD   HL,DSK800    ;800K Floppy-Disk
+  E791    FE 00          C              CP   0
+  E793    28 03          C              JR   Z,DISK2
+  E795    21 E7D8        C              LD   HL,DSK780    ;780K Floppy-Disk
+  E798    CD F2EA        C      DISK2:  CALL OUTTXT
+  E79B    C3 E726        C              JP   WBOOT        ;Warmstart
                          C      ;
-  E79B    01             C      DSKSET: DEFB 1            ;beim Kaltstart: 780K
+  E79E    01             C      DSKSET: DEFB 1            ;beim Kaltstart: 780K
                          C      ;
-  E79C    0050           C      DPB800: DEFW 80           ;80 Sectoren/Track
-  E79E    04             C              DEFB 4            ;Blockgroesse = 2 Kbyte
-  E79F    0F             C              DEFB 15
-  E7A0    00             C              DEFB 0
-  E7A1    018F           C              DEFW 399          ;400 * 2 Kbyte - Bloecke
-  E7A3    00BF           C              DEFW 191          ;192 DIR - Eintraege
-  E7A5    00E0           C              DEFW 0E0H         ;3 DIR-Bloecke
-  E7A7    0030           C              DEFW 48
-  E7A9    0000           C              DEFW 0            ;0 Kbyte System
-                         C      ;
+  E79F    0050           C      DPB800: DEFW 80           ;80 Sectoren/Track
+  E7A1    04             C              DEFB 4            ;Blockgroesse = 2 Kbyte
+  E7A2    0F             C              DEFB 15
+  E7A3    00             C              DEFB 0
+  E7A4    018F           C              DEFW 399          ;400 * 2 Kbyte - Bloecke
+  E7A6    00BF           C              DEFW 191          ;192 DIR - Eintraege
+  E7A8    00E0           C              DEFW 0E0H         ;3 DIR-Bloecke
 	MACRO-80 3.44	09-Dec-81	PAGE	1-5
 
 
-  E7AB    0000           C              DEFW 0
+  E7AA    0030           C              DEFW 48
+  E7AC    0000           C              DEFW 0            ;0 Kbyte System
                          C      ;
-  E7AD    0050           C      DPB780: DEFW 80           ;80 Sectoren/Track
-  E7AF    04             C              DEFB 4            ;Blockgroesse = 2 Kbyte
-  E7B0    0F             C              DEFB 15
-  E7B1    00             C              DEFB 0
-  E7B2    0185           C              DEFW 389          ;390 * 2 Kbyte - Bloecke
-  E7B4    007F           C              DEFW 127          ;128 DIR - Eintraege
-  E7B6    00C0           C              DEFW 0C0H         ;pro DIR-Block 1Bit gesetzt
-  E7B8    0020           C              DEFW 32
-  E7BA    0002           C              DEFW 2            ;20 Kbyte System
+  E7AE    0000           C              DEFW 0
                          C      ;
-  E7BC    0000           C              DEFW 0
+  E7B0    0050           C      DPB780: DEFW 80           ;80 Sectoren/Track
+  E7B2    04             C              DEFB 4            ;Blockgroesse = 2 Kbyte
+  E7B3    0F             C              DEFB 15
+  E7B4    00             C              DEFB 0
+  E7B5    0185           C              DEFW 389          ;390 * 2 Kbyte - Bloecke
+  E7B7    007F           C              DEFW 127          ;128 DIR - Eintraege
+  E7B9    00C0           C              DEFW 0C0H         ;pro DIR-Block 1Bit gesetzt
+  E7BB    0020           C              DEFW 32
+  E7BD    0002           C              DEFW 2            ;20 Kbyte System
                          C      ;
-  E7BE    0D 0A          C      DSK800: DEFB 0DH,0AH
-  E7C0    2D 2D 2D 3E    C              DEFM '---> Drive B:=800K'
-  E7C4    20 44 72 69    C      
-  E7C8    76 65 20 42    C      
-  E7CC    3A 3D 38 30    C      
-  E7D0    30 4B          C      
-  E7D2    0D 0A 00       C              DEFB 0DH,0AH,00H
-  E7D5    0D 0A          C      DSK780: DEFB 0DH,0AH
-  E7D7    2D 2D 2D 3E    C              DEFM '---> Drive B:=780K'
-  E7DB    20 44 72 69    C      
-  E7DF    76 65 20 42    C      
-  E7E3    3A 3D 37 38    C      
-  E7E7    30 4B          C      
-  E7E9    0D 0A 00       C              DEFB 0DH,0AH,00H
+  E7BF    0000           C              DEFW 0
+                         C      ;
+  E7C1    0D 0A          C      DSK800: DEFB 0DH,0AH
+  E7C3    2D 2D 2D 3E    C              DEFM '---> Drive B:=800K'
+  E7C7    20 44 72 69    C      
+  E7CB    76 65 20 42    C      
+  E7CF    3A 3D 38 30    C      
+  E7D3    30 4B          C      
+  E7D5    0D 0A 00       C              DEFB 0DH,0AH,00H
+  E7D8    0D 0A          C      DSK780: DEFB 0DH,0AH
+  E7DA    2D 2D 2D 3E    C              DEFM '---> Drive B:=780K'
+  E7DE    20 44 72 69    C      
+  E7E2    76 65 20 42    C      
+  E7E6    3A 3D 37 38    C      
+  E7EA    30 4B          C      
+  E7EC    0D 0A 00       C              DEFB 0DH,0AH,00H
                          C      ;
                                 ;
                                         .PRINTX '--> FLOPPY'
@@ -354,7 +357,7 @@
                          C      ;       *                     *
                          C      ;       ***********************
                          C      ;
-                         C      ;17.10.2025
+                         C      ;14.11.2025
                          C      ;
                          C      ;Sectorberechnung Floppy
                          C      ;-----------------------
@@ -370,252 +373,252 @@
   0044                   C      DL175   EQU  44H          ;ehem. 48H
   0043                   C      AKWAIT  EQU  43H          ;ehem. 50H
                          C      ;
-  E7EC    21 EAAE        C      CPSEC:  LD   HL,SECTOR
-  E7EF    E5             C              PUSH HL
-  E7F0    3A EAB9        C              LD   A,(N)        ;Diskettenformat
-  E7F3    4F             C              LD   C,A
-  E7F4    47             C              LD   B,A          ;Maske errechnen
-  E7F5    AF             C              XOR  A
+  E7EF    21 EAB1        C      CPSEC:  LD   HL,SECTOR
+  E7F2    E5             C              PUSH HL
+  E7F3    3A EABC        C              LD   A,(N)        ;Diskettenformat
 	MACRO-80 3.44	09-Dec-81	PAGE	1-6
 
 
-  E7F6    37             C      CPSEC1: SCF
-  E7F7    17             C              RLA
-  E7F8    10 FC          C              DJNZ CPSEC1
-  E7FA    35             C              DEC  (HL)
-  E7FB    A6             C              AND  (HL)         ;n. Sec. im Diskblock
-  E7FC    21 EA51        C              LD   HL,FDMA-80H  ;FDMA-Zeiger ber.
-  E7FF    11 0080        C              LD   DE,80H
-  E802    47             C              LD   B,A          ;n. Sector im FDMA
-  E803    04             C              INC  B
-  E804    19             C      CPSEC2: ADD  HL,DE
-  E805    10 FD          C              DJNZ CPSEC2
-  E807    EB             C              EX   DE,HL
-  E808    41             C              LD   B,C          ;(N)
-  E809    E1             C              POP  HL           ;SECTOR
-  E80A    7E             C              LD   A,(HL)
-  E80B    34             C              INC  (HL)
-  E80C    CB 3F          C      CPSEC3: SRL  A
-  E80E    10 FC          C              DJNZ CPSEC3       ;B=0 (Kopf1)
+  E7F6    4F             C              LD   C,A
+  E7F7    47             C              LD   B,A          ;Maske errechnen
+  E7F8    AF             C              XOR  A
+  E7F9    37             C      CPSEC1: SCF
+  E7FA    17             C              RLA
+  E7FB    10 FC          C              DJNZ CPSEC1
+  E7FD    35             C              DEC  (HL)
+  E7FE    A6             C              AND  (HL)         ;n. Sec. im Diskblock
+  E7FF    21 EA54        C              LD   HL,FDMA-80H  ;FDMA-Zeiger ber.
+  E802    11 0080        C              LD   DE,80H
+  E805    47             C              LD   B,A          ;n. Sector im FDMA
+  E806    04             C              INC  B
+  E807    19             C      CPSEC2: ADD  HL,DE
+  E808    10 FD          C              DJNZ CPSEC2
+  E80A    EB             C              EX   DE,HL
+  E80B    41             C              LD   B,C          ;(N)
+  E80C    E1             C              POP  HL           ;SECTOR
+  E80D    7E             C              LD   A,(HL)
+  E80E    34             C              INC  (HL)
+  E80F    CB 3F          C      CPSEC3: SRL  A
+  E811    10 FC          C              DJNZ CPSEC3       ;B=0 (Kopf1)
                          C      ;
                          C      ;Kopf berechnen
                          C      ;--------------
                          C      ;
-  E810    4F             C              LD   C,A
-  E811    3A EABA        C              LD   A,(EOT)      ;DSectoren je Spur
-  E814    3D             C              DEC  A
-  E815    21 EAB8        C              LD   HL,SECTR
-  E818    91             C              SUB  C
-  E819    30 04          C              JR   NC,INHEAD    ;Kopf 1
-  E81B    2F             C              CPL               ;bitweise negieren
-  E81C    06 01          C              LD   B,1          ;Kopf 2
-  E81E    4F             C              LD   C,A
-  E81F    79             C      INHEAD: LD   A,C
-  E820    35             C              DEC  (HL)
-  E821    BE             C              CP   (HL)
-  E822    F5             C              PUSH AF
-  E823    71             C              LD   (HL),C       ;DSector eintragen
-  E824    34             C              INC  (HL)         ;Sec. rel. zu 1
-  E825    2B             C              DEC  HL
-  E826    70             C              LD   (HL),B       ;Kopf eintragen
-  E827    CB 20          C              SLA  B
-  E829    CB 20          C              SLA  B
-  E82B    2B             C              DEC  HL
-  E82C    2B             C              DEC  HL           ;UNIT
-  E82D    3A EAB5        C              LD   A,(UNIT)
-  E830    E6 03          C              AND  3            ;Maske fuer LW 1-4
-  E832    B0             C              OR   B
-  E833    77             C              LD   (HL),A       ;Kopf n, LW x
-  E834    F1             C              POP  AF
-  E835    C9             C              RET
+  E813    4F             C              LD   C,A
+  E814    3A EABD        C              LD   A,(EOT)      ;DSectoren je Spur
+  E817    3D             C              DEC  A
+  E818    21 EABB        C              LD   HL,SECTR
+  E81B    91             C              SUB  C
+  E81C    30 04          C              JR   NC,INHEAD    ;Kopf 1
+  E81E    2F             C              CPL               ;bitweise negieren
+  E81F    06 01          C              LD   B,1          ;Kopf 2
+  E821    4F             C              LD   C,A
+  E822    79             C      INHEAD: LD   A,C
+  E823    35             C              DEC  (HL)
+  E824    BE             C              CP   (HL)
+  E825    F5             C              PUSH AF
+  E826    71             C              LD   (HL),C       ;DSector eintragen
+  E827    34             C              INC  (HL)         ;Sec. rel. zu 1
+  E828    2B             C              DEC  HL
+  E829    70             C              LD   (HL),B       ;Kopf eintragen
+  E82A    CB 20          C              SLA  B
+  E82C    CB 20          C              SLA  B
+  E82E    2B             C              DEC  HL
+  E82F    2B             C              DEC  HL           ;UNIT
+  E830    3A EAB8        C              LD   A,(UNIT)
+  E833    E6 03          C              AND  3            ;Maske fuer LW 1-4
+  E835    B0             C              OR   B
+  E836    77             C              LD   (HL),A       ;Kopf n, LW x
+  E837    F1             C              POP  AF
+  E838    C9             C              RET
                          C      ;
                          C      ;Vergleich letzter LW-Zugriff
                          C      ;----------------------------
                          C      ;
-  E836    21 EAB4        C      CPLW:   LD   HL,CTAB      ;Vergl. Operation
-  E839    BE             C              CP   (HL)
-  E83A    20 21          C              JR   NZ,CPLW1
-  E83C    21 EAB4        C      CPLW3:  LD   HL,CTAB
-  E83F    11 EABE        C              LD   DE,RESLT     ;Vergleich LW
-  E842    1A             C              LD   A,(DE)
-  E843    23             C              INC  HL
+  E839    21 EAB7        C      CPLW:   LD   HL,CTAB      ;Vergl. Operation
+  E83C    BE             C              CP   (HL)
+  E83D    20 21          C              JR   NZ,CPLW1
+  E83F    21 EAB7        C      CPLW3:  LD   HL,CTAB
 	MACRO-80 3.44	09-Dec-81	PAGE	1-7
 
 
-  E844    AE             C              XOR  (HL)
-  E845    E6 03          C              AND  3            ;nur Bit 0 und 1 vergl.
-  E847    20 14          C              JR   NZ,CPLW1
-  E849    23             C              INC  HL           ;Vergleich Spur
-  E84A    13             C              INC  DE
-  E84B    13             C              INC  DE
-  E84C    13             C              INC  DE
-  E84D    3A EAC3        C              LD   A,(RESLT+5)  ;Sector+1
-  E850    3D             C              DEC  A            ;1. Sec. der next Spur?
-  E851    1A             C              LD   A,(DE)
-  E852    20 01          C              JR   NZ,CPLW2
-  E854    3D             C              DEC  A            ;1 Spur zurueck
-  E855    BE             C      CPLW2:  CP   (HL)
-  E856    20 05          C              JR   NZ,CPLW1
-  E858    23             C              INC  HL
-  E859    13             C              INC  DE           ;Vergleich Kopf
-  E85A    1A             C              LD   A,(DE)
-  E85B    BE             C              CP   (HL)
-  E85C    C8             C              RET  Z
-  E85D    04             C      CPLW1:  INC  B
-  E85E    C9             C              RET
+  E842    11 EAC1        C              LD   DE,RESLT     ;Vergleich LW
+  E845    1A             C              LD   A,(DE)
+  E846    23             C              INC  HL
+  E847    AE             C              XOR  (HL)
+  E848    E6 03          C              AND  3            ;nur Bit 0 und 1 vergl.
+  E84A    20 14          C              JR   NZ,CPLW1
+  E84C    23             C              INC  HL           ;Vergleich Spur
+  E84D    13             C              INC  DE
+  E84E    13             C              INC  DE
+  E84F    13             C              INC  DE
+  E850    3A EAC6        C              LD   A,(RESLT+5)  ;Sector+1
+  E853    3D             C              DEC  A            ;1. Sec. der next Spur?
+  E854    1A             C              LD   A,(DE)
+  E855    20 01          C              JR   NZ,CPLW2
+  E857    3D             C              DEC  A            ;1 Spur zurueck
+  E858    BE             C      CPLW2:  CP   (HL)
+  E859    20 05          C              JR   NZ,CPLW1
+  E85B    23             C              INC  HL
+  E85C    13             C              INC  DE           ;Vergleich Kopf
+  E85D    1A             C              LD   A,(DE)
+  E85E    BE             C              CP   (HL)
+  E85F    C8             C              RET  Z
+  E860    04             C      CPLW1:  INC  B
+  E861    C9             C              RET
                          C      ;
                          C      ;Sector schreiben
                          C      ;----------------
                          C      ;
-  E85F    F3             C      WRFLO:  DI
-  E860    ED 73 F5DD     C              LD   (SAVSTK),SP
-  E864    31 F65D        C              LD   SP,BIOSTK
-  E867    E5             C              PUSH HL
-  E868    D5             C              PUSH DE
-  E869    C5             C              PUSH BC
-  E86A    C5             C              PUSH BC           ;C=1->Direktory schreiben
-  E86B    CD EA11        C              CALL INITFL       ;Floppy initialisieren
-  E86E    AF             C              XOR  A            ;Fehlermeldung loeschen
-  E86F    32 EACF        C              LD   (RWTEST),A
-  E872    CD E7EC        C              CALL CPSEC        ;Vergleich Sector
-  E875    D5             C              PUSH DE           ;Position im HST-Puffer
-  E876    06 00          C              LD   B,0
-  E878    28 01          C              JR   Z,WRITE1     ;gleicher Sector
-  E87A    04             C              INC  B
-  E87B    CD E83C        C      WRITE1: CALL CPLW3        ;restl. Verleich
-  E87E    3A EACE        C              LD   A,(BLTEST)
-  E881    B7             C              OR   A
-  E882    28 07          C              JR   Z,WRITE2     ;nicht schr. aber lesen
-  E884    78             C              LD   A,B
-  E885    B7             C              OR   A            ;neuer HST-Sector?
-  E886    28 16          C              JR   Z,WRITE3     ;weder lesen noch schr.
-  E888    CD E8B7        C              CALL WRITE4       ;alten HST-Sector schr.
-  E88B    CD EA6A        C      WRITE2: CALL R8272        ;neuen HST-Sector lesen
-  E88E    21 EAB4        C              LD   HL,CTAB      ;Werte merken
-  E891    11 EAC5        C              LD   DE,CTAB2
-  E894    01 0009        C              LD   BC,9         ;9 Kommandobytes
-  E897    ED B0          C              LDIR
-  E899    3E 01          C              LD   A,1
-  E89B    32 EACE        C              LD   (BLTEST),A   ;Kennung ruecksetzen
-  E89E    D1             C      WRITE3: POP  DE           ;Pos. im HST-Sector
-  E89F    2A EAAF        C              LD   HL,(DMA)
-  E8A2    01 0080        C              LD   BC,80H
-  E8A5    ED B0          C              LDIR
-  E8A7    F1             C              POP  AF           ;C=1 bei UP-Aufruf?
+  E862    F3             C      WRFLO:  DI
+  E863    ED 73 F5E0     C              LD   (SAVSTK),SP
+  E867    31 F660        C              LD   SP,BIOSTK
+  E86A    E5             C              PUSH HL
+  E86B    D5             C              PUSH DE
+  E86C    C5             C              PUSH BC
+  E86D    C5             C              PUSH BC           ;C=1->Direktory schreiben
+  E86E    CD EA14        C              CALL INITFL       ;Floppy initialisieren
+  E871    AF             C              XOR  A            ;Fehlermeldung loeschen
+  E872    32 EAD2        C              LD   (RWTEST),A
+  E875    CD E7EF        C              CALL CPSEC        ;Vergleich Sector
+  E878    D5             C              PUSH DE           ;Position im HST-Puffer
+  E879    06 00          C              LD   B,0
+  E87B    28 01          C              JR   Z,WRITE1     ;gleicher Sector
+  E87D    04             C              INC  B
+  E87E    CD E83F        C      WRITE1: CALL CPLW3        ;restl. Verleich
+  E881    3A EAD1        C              LD   A,(BLTEST)
+  E884    B7             C              OR   A
+  E885    28 07          C              JR   Z,WRITE2     ;nicht schr. aber lesen
+  E887    78             C              LD   A,B
+  E888    B7             C              OR   A            ;neuer HST-Sector?
+  E889    28 16          C              JR   Z,WRITE3     ;weder lesen noch schr.
+  E88B    CD E8BA        C              CALL WRITE4       ;alten HST-Sector schr.
+  E88E    CD EA6D        C      WRITE2: CALL R8272        ;neuen HST-Sector lesen
+  E891    21 EAB7        C              LD   HL,CTAB      ;Werte merken
+  E894    11 EAC8        C              LD   DE,CTAB2
+  E897    01 0009        C              LD   BC,9         ;9 Kommandobytes
+  E89A    ED B0          C              LDIR
+  E89C    3E 01          C              LD   A,1
+  E89E    32 EAD1        C              LD   (BLTEST),A   ;Kennung ruecksetzen
+  E8A1    D1             C      WRITE3: POP  DE           ;Pos. im HST-Sector
+  E8A2    2A EAB2        C              LD   HL,(DMA)
 	MACRO-80 3.44	09-Dec-81	PAGE	1-8
 
 
-  E8A8    DC E8B7        C              CALL C,WRITE4
-  E8AB    3A EACF        C              LD   A,(RWTEST)   ;fuer Fehlertest
-  E8AE    C1             C              POP  BC
-  E8AF    D1             C              POP  DE
-  E8B0    E1             C              POP  HL
-  E8B1    ED 7B F5DD     C              LD   SP,(SAVSTK)
-  E8B5    FB             C              EI
-  E8B6    C9             C              RET
+  E8A5    01 0080        C              LD   BC,80H
+  E8A8    ED B0          C              LDIR
+  E8AA    F1             C              POP  AF           ;C=1 bei UP-Aufruf?
+  E8AB    DC E8BA        C              CALL C,WRITE4
+  E8AE    3A EAD2        C              LD   A,(RWTEST)   ;fuer Fehlertest
+  E8B1    C1             C              POP  BC
+  E8B2    D1             C              POP  DE
+  E8B3    E1             C              POP  HL
+  E8B4    ED 7B F5E0     C              LD   SP,(SAVSTK)
+  E8B8    FB             C              EI
+  E8B9    C9             C              RET
                          C      ;
                          C      ;HST-Sector schreiben
                          C      ;--------------------
                          C      ;
-  E8B7    3A EACE        C      WRITE4: LD   A,(BLTEST)   ;Kennungstest
-  E8BA    B7             C              OR   A
-  E8BB    C8             C              RET  Z            ;nicht schreiben
-  E8BC    21 EAC5        C              LD   HL,CTAB2     ;Werte letzter HST-Sec.
-  E8BF    22 EAB1        C              LD   (FDCCOM),HL
-  E8C2    CD EA63        C              CALL W8272        ;phys. Schreiben
-  E8C5    21 EACE        C              LD   HL,BLTEST
-  E8C8    36 00          C              LD   (HL),0       ;Kennung setzen
-  E8CA    21 EAB4        C              LD   HL,CTAB      ;mit neuen Werten
-  E8CD    22 EAB1        C              LD   (FDCCOM),HL  ;weiterarbeiten
-  E8D0    C9             C              RET
+  E8BA    3A EAD1        C      WRITE4: LD   A,(BLTEST)   ;Kennungstest
+  E8BD    B7             C              OR   A
+  E8BE    C8             C              RET  Z            ;nicht schreiben
+  E8BF    21 EAC8        C              LD   HL,CTAB2     ;Werte letzter HST-Sec.
+  E8C2    22 EAB4        C              LD   (FDCCOM),HL
+  E8C5    CD EA66        C              CALL W8272        ;phys. Schreiben
+  E8C8    21 EAD1        C              LD   HL,BLTEST
+  E8CB    36 00          C              LD   (HL),0       ;Kennung setzen
+  E8CD    21 EAB7        C              LD   HL,CTAB      ;mit neuen Werten
+  E8D0    22 EAB4        C              LD   (FDCCOM),HL  ;weiterarbeiten
+  E8D3    C9             C              RET
                          C      ;
                          C      ;Sector lesen
                          C      ;------------
                          C      ;
-  E8D1    F3             C      RDFLO:  DI
-  E8D2    ED 73 F5DD     C              LD   (SAVSTK),SP
-  E8D6    31 F65D        C              LD   SP,BIOSTK
-  E8D9    E5             C              PUSH HL
-  E8DA    D5             C              PUSH DE
-  E8DB    C5             C              PUSH BC
-  E8DC    CD EA11        C              CALL INITFL       ;Floppy initialisieren
-  E8DF    CD E8B7        C              CALL WRITE4       ;HST-Sec. schr. (A=0 bei
-  E8E2    32 EACF        C              LD   (RWTEST),A   ;fehlerfreiem schreiben)
-  E8E5    CD E7EC        C              CALL CPSEC
-  E8E8    D5             C              PUSH DE
-  E8E9    06 00          C              LD   B,0
-  E8EB    28 01          C              JR   Z,READ1
-  E8ED    04             C              INC  B
-  E8EE    3E 46          C      READ1:  LD   A,46H
-  E8F0    CD E836        C              CALL CPLW
-  E8F3    78             C              LD   A,B
-  E8F4    B7             C              OR   A
-  E8F5    C4 EA6A        C              CALL NZ,R8272
-  E8F8    E1             C              POP  HL
-  E8F9    ED 5B EAAF     C              LD   DE,(DMA)
-  E8FD    01 0080        C              LD   BC,80H
-  E900    ED B0          C              LDIR
-  E902    3A EACF        C              LD   A,(RWTEST)
-  E905    C1             C              POP  BC
-  E906    D1             C              POP  DE
-  E907    E1             C              POP  HL
-  E908    ED 7B F5DD     C              LD   SP,(SAVSTK)
-  E90C    FB             C              EI
-  E90D    C9             C              RET
-                         C      ;
-                         C      ;Motor einschalten
-                         C      ;-----------------
+  E8D4    F3             C      RDFLO:  DI
+  E8D5    ED 73 F5E0     C              LD   (SAVSTK),SP
+  E8D9    31 F660        C              LD   SP,BIOSTK
+  E8DC    E5             C              PUSH HL
+  E8DD    D5             C              PUSH DE
+  E8DE    C5             C              PUSH BC
+  E8DF    CD EA14        C              CALL INITFL       ;Floppy initialisieren
+  E8E2    CD E8BA        C              CALL WRITE4       ;HST-Sec. schr. (A=0 bei
+  E8E5    32 EAD2        C              LD   (RWTEST),A   ;fehlerfreiem schreiben)
+  E8E8    CD E7EF        C              CALL CPSEC
+  E8EB    D5             C              PUSH DE
+  E8EC    06 00          C              LD   B,0
+  E8EE    28 01          C              JR   Z,READ1
+  E8F0    04             C              INC  B
+  E8F1    3E 46          C      READ1:  LD   A,46H
+  E8F3    CD E839        C              CALL CPLW
+  E8F6    78             C              LD   A,B
+  E8F7    B7             C              OR   A
+  E8F8    C4 EA6D        C              CALL NZ,R8272
+  E8FB    E1             C              POP  HL
+  E8FC    ED 5B EAB2     C              LD   DE,(DMA)
+  E900    01 0080        C              LD   BC,80H
+  E903    ED B0          C              LDIR
+  E905    3A EAD2        C              LD   A,(RWTEST)
+  E908    C1             C              POP  BC
+  E909    D1             C              POP  DE
+  E90A    E1             C              POP  HL
+  E90B    ED 7B F5E0     C              LD   SP,(SAVSTK)
+  E90F    FB             C              EI
+  E910    C9             C              RET
 	MACRO-80 3.44	09-Dec-81	PAGE	1-9
 
 
                          C      ;
-  E90E    E5             C      MOTON:  PUSH HL
-  E90F    21 EAB3        C              LD   HL,STREG
-  E912    3A EACE        C              LD   A,(BLTEST)   ;Kennungstest
-  E915    B7             C              OR   A
-  E916    28 05          C              JR   Z,HSTRD      ;(neuen) Hostsector lesen
-  E918    3A EAC6        C              LD   A,(CTAB2+1)  ;(alten) Hostsector schreiben
-  E91B    18 03          C              JR   HSTWR
-  E91D    3A EAB5        C      HSTRD:  LD   A,(UNIT)
-  E920    CB 47          C      HSTWR:  BIT  0,A          ;2 phys. LW
-  E922    20 04          C              JR   NZ,MOTOR1
-  E924    CB C6          C              SET  0,(HL)
-  E926    18 02          C              JR   MOTOR0
-  E928    CB DE          C      MOTOR1: SET  3,(HL)
-  E92A    7E             C      MOTOR0: LD   A,(HL)
-  E92B    D3 44          C              OUT  (DL175),A
-  E92D    E1             C              POP  HL
-  E92E    CD EA04        C      ONLOOP: CALL REGDEL
-  E931    01 0204        C              LD   BC,0204H     ;LW-Status
-  E934    CD E989        C              CALL WCOM
-  E937    CD E99F        C              CALL DELAY
-  E93A    DB 41          C              IN   A,(DFDC)     ;ST3
-  E93C    CB 6F          C              BIT  5,A          ;LW ready?
-  E93E    28 EE          C              JR   Z,ONLOOP     ;Drehzahl zu klein
-  E940    C9             C              RET
+                         C      ;Motor einschalten
+                         C      ;-----------------
+                         C      ;
+  E911    E5             C      MOTON:  PUSH HL
+  E912    21 EAB6        C              LD   HL,STREG
+  E915    3A EAD1        C              LD   A,(BLTEST)   ;Kennungstest
+  E918    B7             C              OR   A
+  E919    28 05          C              JR   Z,HSTRD      ;(neuen) Hostsector lesen
+  E91B    3A EAC9        C              LD   A,(CTAB2+1)  ;(alten) Hostsector schreiben
+  E91E    18 03          C              JR   HSTWR
+  E920    3A EAB8        C      HSTRD:  LD   A,(UNIT)
+  E923    CB 47          C      HSTWR:  BIT  0,A          ;2 phys. LW
+  E925    20 04          C              JR   NZ,MOTOR1
+  E927    CB C6          C              SET  0,(HL)
+  E929    18 02          C              JR   MOTOR0
+  E92B    CB DE          C      MOTOR1: SET  3,(HL)
+  E92D    7E             C      MOTOR0: LD   A,(HL)
+  E92E    D3 44          C              OUT  (DL175),A
+  E930    E1             C              POP  HL
+  E931    CD EA07        C      ONLOOP: CALL REGDEL
+  E934    01 0204        C              LD   BC,0204H     ;LW-Status
+  E937    CD E98C        C              CALL WCOM
+  E93A    CD E9A2        C              CALL DELAY
+  E93D    DB 41          C              IN   A,(DFDC)     ;ST3
+  E93F    CB 6F          C              BIT  5,A          ;LW ready?
+  E941    28 EE          C              JR   Z,ONLOOP     ;Drehzahl zu klein
+  E943    C9             C              RET
                          C      ;
                          C      ;Motor ausschalten
                          C      ;-----------------
                          C      ;
-  E941    E5             C      MOTOFF: PUSH HL
-  E942    21 EAB3        C              LD   HL,STREG
-  E945    CB 86          C              RES  0,(HL)
-  E947    CB 9E          C              RES  3,(HL)
-  E949    7E             C              LD   A,(HL)
-  E94A    D3 44          C              OUT  (DL175),A
-  E94C    E1             C              POP  HL
-  E94D    C9             C              RET
+  E944    E5             C      MOTOFF: PUSH HL
+  E945    21 EAB6        C              LD   HL,STREG
+  E948    CB 86          C              RES  0,(HL)
+  E94A    CB 9E          C              RES  3,(HL)
+  E94C    7E             C              LD   A,(HL)
+  E94D    D3 44          C              OUT  (DL175),A
+  E94F    E1             C              POP  HL
+  E950    C9             C              RET
                          C      ;
                          C      ;Precompensation einschalten
                          C      ;---------------------------
                          C      ;
-  E94E    E5             C      PRECOM: PUSH HL           ;nicht genutzt
-  E94F    21 EAB3        C              LD   HL,STREG
-  E952    CB D6          C              SET  2,(HL)
-  E954    7E             C              LD   A,(HL)
-  E955    D3 44          C              OUT  (DL175),A
-  E957    E1             C              POP  HL
-  E958    C9             C              RET
+  E951    E5             C      PRECOM: PUSH HL           ;nicht genutzt
+  E952    21 EAB6        C              LD   HL,STREG
+  E955    CB D6          C              SET  2,(HL)
+  E957    7E             C              LD   A,(HL)
+  E958    D3 44          C              OUT  (DL175),A
+  E95A    E1             C              POP  HL
+  E95B    C9             C              RET
                          C      ;
                          C      ;Laufwerksstatus pruefen
                          C      ;-----------------------
@@ -624,272 +627,272 @@
                          C      ;OUT:Statusregister 3
                          C      ;(FAULT,WP,RDY,TO,TS,HD,US1,US0)
                          C      ;
-  E959    01 0204        C      SDS:    LD   BC,0204H
-  E95C    CD E989        C              CALL WCOM         ;Kommando schreiben
-  E95F    CD E9A6        C              CALL RBYTE        ;1 Byte lesen
-  E962    C9             C              RET
+  E95C    01 0204        C      SDS:    LD   BC,0204H
 	MACRO-80 3.44	09-Dec-81	PAGE	1-10
 
 
+  E95F    CD E98C        C              CALL WCOM         ;Kommando schreiben
+  E962    CD E9A9        C              CALL RBYTE        ;1 Byte lesen
+  E965    C9             C              RET
                          C      ;
                          C      ;Spur einstellen
                          C      ;---------------
                          C      ;Kommando:0FH+UNIT+TRACK
                          C      ;
-  E963    3A EAB6        C      SEEK:   LD   A,(TRACK)    ;>Spur 80?
-  E966    FE 80          C              CP   80H
-  E968    D2 F2D5        C              JP   NC,DERROR
-  E96B    01 030F        C              LD   BC,030FH
-  E96E    CD E97F        C              CALL RDY
-  E971    CD EA4F        C              CALL SENSE        ;Interruptst. pruefen
-  E974    DB 40          C      SKBSY:  IN   A,(CFDC)
-  E976    E6 0F          C              AND  0FH
-  E978    20 FA          C              JR   NZ,SKBSY
-  E97A    CB 60          C              BIT  4,B          ;>77 Spuren?
-  E97C    20 E5          C              JR   NZ,SEEK
-  E97E    C9             C              RET
+  E966    3A EAB9        C      SEEK:   LD   A,(TRACK)    ;>Spur 80?
+  E969    FE 50          C              CP   80
+  E96B    D2 F2D8        C              JP   NC,DERROR
+  E96E    01 030F        C              LD   BC,030FH
+  E971    CD E982        C              CALL RDY
+  E974    CD EA52        C              CALL SENSE        ;Interruptst. pruefen
+  E977    DB 40          C      SKBSY:  IN   A,(CFDC)
+  E979    E6 0F          C              AND  0FH
+  E97B    20 FA          C              JR   NZ,SKBSY
+  E97D    CB 60          C              BIT  4,B          ;>77 Spuren?
+  E97F    20 E5          C              JR   NZ,SEEK
+  E981    C9             C              RET
                          C      ;
                          C      ;Kommando schreiben
                          C      ;------------------
                          C      ;
-  E97F    C5             C      RDY:    PUSH BC           ;LW betriebsfaehig?
-  E980    CD E959        C              CALL SDS          ;LW Status?
-  E983    C1             C              POP  BC
-  E984    CB 6F          C              BIT  5,A          ;Ready-Bit in Statreg.3
-  E986    CA F2D5        C              JP   Z,DERROR     ;Fehlermeldung
-  E989    2A EAB1        C      WCOM:   LD   HL,(FDCCOM)  ;Statustabelle
+  E982    C5             C      RDY:    PUSH BC           ;LW betriebsfaehig?
+  E983    CD E95C        C              CALL SDS          ;LW Status?
+  E986    C1             C              POP  BC
+  E987    CB 6F          C              BIT  5,A          ;Ready-Bit in Statreg.3
+  E989    CA F2D8        C              JP   Z,DERROR     ;Fehlermeldung
+  E98C    2A EAB4        C      WCOM:   LD   HL,(FDCCOM)  ;Statustabelle
                          C      ;
                          C      ;IN: B - Anzahl der Kommandos
                          C      ;    C - 1. Kommando
                          C      ;
-  E98C    CD E99F        C      WCOM1:  CALL DELAY
-  E98F    DB 40          C              IN   A,(CFDC)
-  E991    E6 C0          C              AND  0C0H
-  E993    FE 80          C              CP   80H          ;RQM, DIO=OUT
-  E995    20 F5          C              JR   NZ,WCOM1
-  E997    79             C              LD   A,C
-  E998    D3 41          C              OUT  (DFDC),A     ;Kommandoausgabe
-  E99A    23             C              INC  HL
-  E99B    4E             C              LD   C,(HL)
-  E99C    10 EE          C              DJNZ WCOM1
-  E99E    C9             C              RET
+  E98F    CD E9A2        C      WCOM1:  CALL DELAY
+  E992    DB 40          C              IN   A,(CFDC)
+  E994    E6 C0          C              AND  0C0H
+  E996    FE 80          C              CP   80H          ;RQM, DIO=OUT
+  E998    20 F5          C              JR   NZ,WCOM1
+  E99A    79             C              LD   A,C
+  E99B    D3 41          C              OUT  (DFDC),A     ;Kommandoausgabe
+  E99D    23             C              INC  HL
+  E99E    4E             C              LD   C,(HL)
+  E99F    10 EE          C              DJNZ WCOM1
+  E9A1    C9             C              RET
                          C      ;
                          C      ;Verzoegerung fuer Statusflag 8272
                          C      ;---------------------------------
                          C      ;
-  E99F    C5             C      DELAY:  PUSH BC
-  E9A0    06 0F          C              LD   B,0FH
-  E9A2    10 FE          C      DEL1:   DJNZ DEL1
-  E9A4    C1             C              POP  BC
-  E9A5    C9             C              RET
+  E9A2    C5             C      DELAY:  PUSH BC
+  E9A3    06 0F          C              LD   B,0FH
+  E9A5    10 FE          C      DEL1:   DJNZ DEL1
+  E9A7    C1             C              POP  BC
+  E9A8    C9             C              RET
                          C      ;
                          C      ;1 Byte lesen
                          C      ;------------
                          C      ;
-  E9A6    CD E99F        C      RBYTE:  CALL DELAY
-  E9A9    CD E9CB        C              CALL IRDY
-  E9AC    DB 41          C              IN   A,(DFDC)
-  E9AE    C9             C              RET
-                         C      ;
+  E9A9    CD E9A2        C      RBYTE:  CALL DELAY
+  E9AC    CD E9CE        C              CALL IRDY
 	MACRO-80 3.44	09-Dec-81	PAGE	1-11
 
 
+  E9AF    DB 41          C              IN   A,(DFDC)
+  E9B1    C9             C              RET
+                         C      ;
                          C      ;Lese 7 Resultat-Bytes
                          C      ;---------------------
                          C      ;
-  E9AF    06 07          C      RRSLT:  LD   B,7
-  E9B1    0E 41          C              LD   C,DFDC
-  E9B3    21 EABE        C              LD   HL,RESLT
-  E9B6    E5             C              PUSH HL
-  E9B7    DB 40          C      RRSLT1: IN   A,(CFDC)
-  E9B9    07             C              RLCA
-  E9BA    D2 E9B7        C              JP   NC,RRSLT1
-  E9BD    ED A2          C              INI
-  E9BF    07             C              RLCA
-  E9C0    D2 F2D5        C              JP   NC,DERROR
-  E9C3    C2 E9B7        C              JP   NZ,RRSLT1
-  E9C6    E1             C              POP  HL
-  E9C7    7E             C              LD   A,(HL)
-  E9C8    E6 C0          C              AND  0C0H
-  E9CA    C9             C              RET
+  E9B2    06 07          C      RRSLT:  LD   B,7
+  E9B4    0E 41          C              LD   C,DFDC
+  E9B6    21 EAC1        C              LD   HL,RESLT
+  E9B9    E5             C              PUSH HL
+  E9BA    DB 40          C      RRSLT1: IN   A,(CFDC)
+  E9BC    07             C              RLCA
+  E9BD    D2 E9BA        C              JP   NC,RRSLT1
+  E9C0    ED A2          C              INI
+  E9C2    07             C              RLCA
+  E9C3    D2 F2D8        C              JP   NC,DERROR
+  E9C6    C2 E9BA        C              JP   NZ,RRSLT1
+  E9C9    E1             C              POP  HL
+  E9CA    7E             C              LD   A,(HL)
+  E9CB    E6 C0          C              AND  0C0H
+  E9CD    C9             C              RET
                          C      ;
                          C      ;Bereit fuer Dateneingabe?
                          C      ;-------------------------
                          C      ;
-  E9CB    DB 40          C      IRDY:   IN   A,(CFDC)
-  E9CD    07             C              RLCA
-  E9CE    30 FB          C              JR   NC,IRDY
-  E9D0    E6 80          C              AND  80H
-  E9D2    07             C              RLCA
-  E9D3    D8             C              RET  C            ;hier war frueher Schluss
-  E9D4    CD E941        C              CALL MOTOFF
-  E9D7    C3 F2D5        C              JP   DERROR
+  E9CE    DB 40          C      IRDY:   IN   A,(CFDC)
+  E9D0    07             C              RLCA
+  E9D1    30 FB          C              JR   NC,IRDY
+  E9D3    E6 80          C              AND  80H
+  E9D5    07             C              RLCA
+  E9D6    D8             C              RET  C            ;hier war frueher Schluss
+  E9D7    CD E944        C              CALL MOTOFF
+  E9DA    C3 F2D8        C              JP   DERROR
                          C      ;
                          C      ;Initialisierungstabelle
                          C      ;-----------------------
                          C      ;
-  E9DA    E1             C      STAB:   DEFB 0E1H         ;XXXX-SRT, XXXX-HUT
-  E9DB    33             C              DEFB 33H          ;XXXXXXX-HLT, X-ND
+  E9DD    E1             C      STAB:   DEFB 0E1H         ;XXXX-SRT, XXXX-HUT
+  E9DE    33             C              DEFB 33H          ;XXXXXXX-HLT, X-ND
                          C      ;
                          C      ;Schreiben oder Lesen E*256 Bytes
                          C      ;--------------------------------
                          C      ;wird in RAM umgeladen
                          C      ;
-  E9DC    06 00          C      RW:     LD   B,0
-  E9DE    3A EABD        C              LD   A,(N2)
-  E9E1    5F             C              LD   E,A
-  E9E2    3A EAB3        C              LD   A,(STREG)
-  E9E5    CB CF          C              SET  1,A
-  E9E7    D3 44          C              OUT  (DL175),A    ;WAIT-Freigabe
-  E9E9    DB 40          C      RW1:    IN   A,(CFDC)
-  E9EB    07             C              RLCA
-  E9EC    D2 E9E9        C              JP   NC,RW1
-  E9EF    ED A2          C      MODE0:  INI
-  E9F1    00             C              NOP
-  E9F2    D3 43          C      RW2:    OUT  (AKWAIT),A   ;Aktivierung Wait
+  E9DF    06 00          C      RW:     LD   B,0
+  E9E1    3A EAC0        C              LD   A,(N2)
+  E9E4    5F             C              LD   E,A
+  E9E5    3A EAB6        C              LD   A,(STREG)
+  E9E8    CB CF          C              SET  1,A
+  E9EA    D3 44          C              OUT  (DL175),A    ;WAIT-Freigabe
+  E9EC    DB 40          C      RW1:    IN   A,(CFDC)
+  E9EE    07             C              RLCA
+  E9EF    D2 E9EC        C              JP   NC,RW1
+  E9F2    ED A2          C      MODE0:  INI
   E9F4    00             C              NOP
-  E9F5    ED A2          C      MODE1:  INI
-  E9F7    C2 E9F2        C              JP   NZ,RW2
-  E9FA    1D             C              DEC  E
-  E9FB    C2 E9F2        C              JP   NZ,RW2
-  E9FE    3A EAB3        C              LD   A,(STREG)
-  EA01    D3 44          C              OUT  (DL175),A    ;WAIT-Sperrung
+  E9F5    D3 43          C      RW2:    OUT  (AKWAIT),A   ;Aktivierung Wait
+  E9F7    00             C              NOP
+  E9F8    ED A2          C      MODE1:  INI
+  E9FA    C2 E9F5        C              JP   NZ,RW2
+  E9FD    1D             C              DEC  E
 	MACRO-80 3.44	09-Dec-81	PAGE	1-12
 
 
-  EA03    C9             C              RET
+  E9FE    C2 E9F5        C              JP   NZ,RW2
+  EA01    3A EAB6        C              LD   A,(STREG)
+  EA04    D3 44          C              OUT  (DL175),A    ;WAIT-Sperrung
+  EA06    C9             C              RET
                          C      ;
                          C      ;Resultatregister bis Fertigmeldung lesen
                          C      ;----------------------------------------
                          C      ;
-  EA04    06 00          C      REGDEL: LD   B,0
-  EA06    10 FE          C      ZEIT1:  DJNZ ZEIT1
-  EA08    DB 40          C              IN   A,(CFDC)
-  EA0A    FE 80          C              CP   80H
-  EA0C    C8             C              RET  Z
-  EA0D    DB 41          C              IN   A,(DFDC)
-  EA0F    18 F3          C              JR   REGDEL
+  EA07    06 00          C      REGDEL: LD   B,0
+  EA09    10 FE          C      ZEIT1:  DJNZ ZEIT1
+  EA0B    DB 40          C              IN   A,(CFDC)
+  EA0D    FE 80          C              CP   80H
+  EA0F    C8             C              RET  Z
+  EA10    DB 41          C              IN   A,(DFDC)
+  EA12    18 F3          C              JR   REGDEL
                          C      ;
                          C      ;Treiberinitialisierung U8272 + Laufwerke
                          C      ;----------------------------------------
                          C      ;
-  EA11    3A F438        C      INITFL: LD   A,(DRIVE)    ;Floppy initialisieren
-  EA14    B7             C              OR   A            ;Drive_0 oder Drive_1 seletiert?
-  EA15    C8             C              RET  Z            ;nein
-  EA16    3D             C              DEC  A
-  EA17    20 08          C              JR   NZ,INITF1    ;--> Drive_1
-  EA19    3A EAD0        C              LD   A,(FLFLAG)
-  EA1C    CB 47          C              BIT  0,A          ;Drive_0 bereits initialisiert?
-  EA1E    C0             C              RET  NZ           ;ja
-  EA1F    18 06          C              JR   INITF2
-  EA21    3A EAD0        C      INITF1: LD   A,(FLFLAG)
-  EA24    CB 4F          C              BIT  1,A          ;Drive_1 bereits initialisiert?
-  EA26    C0             C              RET  NZ           ;ja
-  EA27    CD E90E        C      INITF2: CALL MOTON
-  EA2A    21 E9D9        C              LD   HL,STAB-1    ;Parameter laden
-  EA2D    01 0303        C              LD   BC,0303H     ;3 Kommandos
-  EA30    CD E98C        C              CALL WCOM1        ;03H+0E1H+33H
-  EA33    01 0207        C      INITF3: LD   BC,0207H     ;Spur 0 einstellen
-  EA36    CD E97F        C              CALL RDY          ;07H+UNIT --> Drive_0 / Drive_1
-  EA39    CD EA4F        C              CALL SENSE
-  EA3C    CB 60          C              BIT  4,B          ;Spur 0 erreicht?
-  EA3E    20 F3          C              JR   NZ,INITF3
-  EA40    CD E941        C              CALL MOTOFF
-  EA43    3A F438        C              LD   A,(DRIVE)    ;0x01 oder 0x02
-  EA46    4F             C              LD   C,A
-  EA47    3A EAD0        C              LD   A,(FLFLAG)
-  EA4A    B1             C              OR   C
-  EA4B    32 EAD0        C              LD   (FLFLAG),A   ;Init.-Flag setzen
-  EA4E    C9             C              RET
+  EA14    3A F43B        C      INITFL: LD   A,(DRIVE)    ;Floppy initialisieren
+  EA17    B7             C              OR   A            ;Drive_0 oder Drive_1 seletiert?
+  EA18    C8             C              RET  Z            ;nein
+  EA19    3D             C              DEC  A
+  EA1A    20 08          C              JR   NZ,INITF1    ;--> Drive_1
+  EA1C    3A EAD3        C              LD   A,(FLFLAG)
+  EA1F    CB 47          C              BIT  0,A          ;Drive_0 bereits initialisiert?
+  EA21    C0             C              RET  NZ           ;ja
+  EA22    18 06          C              JR   INITF2
+  EA24    3A EAD3        C      INITF1: LD   A,(FLFLAG)
+  EA27    CB 4F          C              BIT  1,A          ;Drive_1 bereits initialisiert?
+  EA29    C0             C              RET  NZ           ;ja
+  EA2A    CD E911        C      INITF2: CALL MOTON
+  EA2D    21 E9DC        C              LD   HL,STAB-1    ;Parameter laden
+  EA30    01 0303        C              LD   BC,0303H     ;3 Kommandos
+  EA33    CD E98F        C              CALL WCOM1        ;03H+0E1H+33H
+  EA36    01 0207        C      INITF3: LD   BC,0207H     ;Spur 0 einstellen
+  EA39    CD E982        C              CALL RDY          ;07H+UNIT --> Drive_0 / Drive_1
+  EA3C    CD EA52        C              CALL SENSE
+  EA3F    CB 60          C              BIT  4,B          ;Spur 0 erreicht?
+  EA41    20 F3          C              JR   NZ,INITF3
+  EA43    CD E944        C              CALL MOTOFF
+  EA46    3A F43B        C              LD   A,(DRIVE)    ;0x01 oder 0x02
+  EA49    4F             C              LD   C,A
+  EA4A    3A EAD3        C              LD   A,(FLFLAG)
+  EA4D    B1             C              OR   C
+  EA4E    32 EAD3        C              LD   (FLFLAG),A   ;Init.-Flag setzen
+  EA51    C9             C              RET
                          C      ;
                          C      ;Pruefe Interruptstatus
                          C      ;----------------------
                          C      ;
-  EA4F    01 0108        C      SENSE:  LD   BC,0108H
-  EA52    CD E989        C              CALL WCOM         ;Kommando schreiben
-  EA55    CD E9A6        C              CALL RBYTE        ;Resultatregister 0
-  EA58    47             C              LD   B,A
-  EA59    FE 80          C              CP   80H
-  EA5B    C4 E9A6        C              CALL NZ,RBYTE     ;PCN holen
-  EA5E    CB 68          C              BIT  5,B          ;SEEK Ende?
-  EA60    28 ED          C              JR   Z,SENSE
-  EA62    C9             C              RET
-                         C      ;
-                         C      ;Sector schreiben
-                         C      ;----------------
+  EA52    01 0108        C      SENSE:  LD   BC,0108H
+  EA55    CD E98C        C              CALL WCOM         ;Kommando schreiben
+  EA58    CD E9A9        C              CALL RBYTE        ;Resultatregister 0
+  EA5B    47             C              LD   B,A
+  EA5C    FE 80          C              CP   80H
+  EA5E    C4 E9A9        C              CALL NZ,RBYTE     ;PCN holen
+  EA61    CB 68          C              BIT  5,B          ;SEEK Ende?
+  EA63    28 ED          C              JR   Z,SENSE
+  EA65    C9             C              RET
 	MACRO-80 3.44	09-Dec-81	PAGE	1-13
 
 
+                         C      ;
+                         C      ;Sector schreiben
+                         C      ;----------------
                          C      ;Sector in (SECTR)
                          C      ;Spur in (TRACK)
                          C      ;akt. LW in (UNIT)
                          C      ;Ziel-/Quelladr. = FDMA
                          C      ;
-  EA63    11             C      W8272:  DEFB 11H          ;LD DE,...
-  EA64    ED A3          C              OUTI
-  EA66    3E 45          C              LD   A,45H        ;Schreibkommando
-  EA68    18 05          C              JR   RWIT
+  EA66    11             C      W8272:  DEFB 11H          ;LD DE,...
+  EA67    ED A3          C              OUTI
+  EA69    3E 45          C              LD   A,45H        ;Schreibkommando
+  EA6B    18 05          C              JR   RWIT
                          C      ;
                          C      ;Sector lesen
                          C      ;------------
                          C      ;
-  EA6A    11             C      R8272:  DEFB 11H          ;LD DE,...
-  EA6B    ED A2          C              INI
-  EA6D    3E 46          C              LD   A,46H        ;Lesekommando
-  EA6F    32 EAB4        C      RWIT:   LD   (CTAB),A
-  EA72    ED 53 E9EF     C              LD   (MODE0),DE
-  EA76    ED 53 E9F5     C              LD   (MODE1),DE
-  EA7A    CD E90E        C              CALL MOTON
-  EA7D    CD E963        C              CALL SEEK
-  EA80    06 0A          C              LD   B,10         ;10 Versuche
-  EA82    C5             C      RWOP:   PUSH BC
-  EA83    06 09          C              LD   B,9          ;9 Kommandobytes
-  EA85    3A EAB4        C              LD   A,(CTAB)
-  EA88    4F             C              LD   C,A
-  EA89    CD E97F        C              CALL RDY          ;Kommandoausgabe
-  EA8C    21 EAD1        C              LD   HL,FDMA
-  EA8F    0E 41          C              LD   C,DFDC       ;Kanal
-  EA91    CD E9DC        C              CALL RW
+  EA6D    11             C      R8272:  DEFB 11H          ;LD DE,...
+  EA6E    ED A2          C              INI
+  EA70    3E 46          C              LD   A,46H        ;Lesekommando
+  EA72    32 EAB7        C      RWIT:   LD   (CTAB),A
+  EA75    ED 53 E9F2     C              LD   (MODE0),DE
+  EA79    ED 53 E9F8     C              LD   (MODE1),DE
+  EA7D    CD E911        C              CALL MOTON
+  EA80    CD E966        C              CALL SEEK
+  EA83    06 0A          C              LD   B,10         ;10 Versuche
+  EA85    C5             C      RWOP:   PUSH BC
+  EA86    06 09          C              LD   B,9          ;9 Kommandobytes
+  EA88    3A EAB7        C              LD   A,(CTAB)
+  EA8B    4F             C              LD   C,A
+  EA8C    CD E982        C              CALL RDY          ;Kommandoausgabe
+  EA8F    21 EAD4        C              LD   HL,FDMA
+  EA92    0E 41          C              LD   C,DFDC       ;Kanal
+  EA94    CD E9DF        C              CALL RW
                          C      ;
                          C      ;Ende-Impuls
                          C      ;
-  EA94    3A EAB3        C              LD   A,(STREG)
-  EA97    CB E7          C              SET  4,A
-  EA99    D3 44          C              OUT  (DL175),A
-  EA9B    CD E9AF        C              CALL RRSLT
-  EA9E    C1             C              POP  BC
-  EA9F    28 04          C              JR   Z,RWEND
-  EAA1    10 DF          C              DJNZ RWOP
-  EAA3    3E 01          C              LD   A,1          ;ERROR
-  EAA5    21 EACF        C      RWEND:  LD   HL,RWTEST
-  EAA8    B6             C              OR   (HL)
-  EAA9    77             C              LD   (HL),A
-  EAAA    CD E941        C              CALL MOTOFF
-  EAAD    C9             C              RET
+  EA97    3A EAB6        C              LD   A,(STREG)
+  EA9A    CB E7          C              SET  4,A
+  EA9C    D3 44          C              OUT  (DL175),A
+  EA9E    CD E9B2        C              CALL RRSLT
+  EAA1    C1             C              POP  BC
+  EAA2    28 04          C              JR   Z,RWEND
+  EAA4    10 DF          C              DJNZ RWOP
+  EAA6    3E 01          C              LD   A,1          ;ERROR
+  EAA8    21 EAD2        C      RWEND:  LD   HL,RWTEST
+  EAAB    B6             C              OR   (HL)
+  EAAC    77             C              LD   (HL),A
+  EAAD    CD E944        C              CALL MOTOFF
+  EAB0    C9             C              RET
                          C      ;
-  EAAE    01             C      SECTOR: DEFB 1
-  EAAF    0080           C      DMA:    DEFW 0080H
-  EAB1    EAB4           C      FDCCOM: DEFW CTAB
-  EAB3    00             C      STREG:  DEFB 0            ;Statusregister fuer DL175
-  EAB4    FF             C      CTAB:   DEFB 0FFH
-  EAB5    00             C      UNIT:   DEFB 0            ;akt. LW
-  EAB6    00             C      TRACK:  DEFB 0
-  EAB7    00             C      HEAD:   DEFB 0
-  EAB8    01             C      SECTR:  DEFB 1
-  EAB9    03             C      N:      DEFB 3            ;N=3 --> 1Kbyte
-  EABA    05             C      EOT:    DEFB 5            ;5 Sektoren je Spur
-  EABB    32             C      GPL:    DEFB 32H          ;Luecke
-  EABC    FF             C      DTL:    DEFB 0FFH
+  EAB1    01             C      SECTOR: DEFB 1
+  EAB2    0080           C      DMA:    DEFW 0080H
+  EAB4    EAB7           C      FDCCOM: DEFW CTAB
+  EAB6    00             C      STREG:  DEFB 0            ;Statusregister fuer DL175
+  EAB7    FF             C      CTAB:   DEFB 0FFH
+  EAB8    00             C      UNIT:   DEFB 0            ;akt. LW
+  EAB9    00             C      TRACK:  DEFB 0
+  EABA    00             C      HEAD:   DEFB 0
+  EABB    01             C      SECTR:  DEFB 1
+  EABC    03             C      N:      DEFB 3            ;N=3 --> 1Kbyte
 	MACRO-80 3.44	09-Dec-81	PAGE	1-14
 
 
-  EABD    04             C      N2:     DEFB 4
-  EABE                   C      RESLT:  DEFS 7,0          ;Resultattabelle f. FDC
-  EAC5                   C      CTAB2:  DEFS 9,0
-  EACE                   C      BLTEST: DEFS 1,0          ;Host-Sector schreiben
-  EACF                   C      RWTEST: DEFS 1,0          ;fuer Fehlermeldungen
-  EAD0    00             C      FLFLAG: DEFB 0            ;Init.-Flag fuer Floppy
-  EAD1                   C      FDMA:   DEFS 400H,0       ;Host-Sector
+  EABD    05             C      EOT:    DEFB 5            ;5 Sektoren je Spur
+  EABE    32             C      GPL:    DEFB 32H          ;Luecke
+  EABF    FF             C      DTL:    DEFB 0FFH
+  EAC0    04             C      N2:     DEFB 4
+  EAC1                   C      RESLT:  DEFS 7,0          ;Resultattabelle f. FDC
+  EAC8                   C      CTAB2:  DEFS 9,0
+  EAD1                   C      BLTEST: DEFS 1,0          ;Host-Sector schreiben
+  EAD2                   C      RWTEST: DEFS 1,0          ;fuer Fehlermeldungen
+  EAD3    00             C      FLFLAG: DEFB 0            ;Init.-Flag fuer Floppy
+  EAD4                   C      FDMA:   DEFS 400H,0       ;Host-Sector
                          C      ;
                                 ENDIF
                                 ;
@@ -909,219 +912,219 @@
                          C      ;
   00E0                   C      RDADR   EQU  0E0H         ;Grund-Adresse der RAM-Disk
                          C      ;
-  EED1                   C      RDMERK: DEFS 4,0          ;4 Merkzellen fuer den RAM-Disk Test
-  EED5    00             C      RDSIZE: DEFB 0            ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
+  EED4                   C      RDMERK: DEFS 4,0          ;4 Merkzellen fuer den RAM-Disk Test
+  EED8    00             C      RDSIZE: DEFB 0            ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
                          C      ;
                          C      ; RAM-Disk lesen
                          C      ; --------------
                          C      ;
-  EED6    CD EEE4        C      RDRDSK: CALL RDARI
-  EED9    ED B2          C              INIR
-  EEDB    AF             C              XOR  A
-  EEDC    C9             C              RET
+  EED9    CD EEE7        C      RDRDSK: CALL RDARI
+  EEDC    ED B2          C              INIR
+  EEDE    AF             C              XOR  A
+  EEDF    C9             C              RET
                          C      ;
                          C      ; RAM-Disk schreiben
                          C      ; ------------------
                          C      ;
-  EEDD    CD EEE4        C      WRRDSK: CALL RDARI
-  EEE0    ED B3          C              OTIR
-  EEE2    AF             C              XOR  A
-  EEE3    C9             C              RET
+  EEE0    CD EEE7        C      WRRDSK: CALL RDARI
+  EEE3    ED B3          C              OTIR
+  EEE5    AF             C              XOR  A
+  EEE6    C9             C              RET
                          C      ;
                          C      ; Disk-Adresse bestimmen
                          C      ; ----------------------
                          C      ;
-  EEE4    3A EAB6        C      RDARI:  LD   A,(TRACK)    ;TTTTTTTT
-  EEE7    6F             C              LD   L,A
-  EEE8    3A EAAE        C              LD   A,(SECTOR)   ;00SSSSSS
-  EEEB    A7             C              AND  A
-  EEEC    CA F2D5        C              JP   Z,DERROR     ;Zugriff auf Sektor 0
-  EEEF    5F             C              LD   E,A
-  EEF0    1D             C              DEC  E            ;CP/A beginnt mit Sektor 1
-  EEF1    AF             C              XOR  A
-  EEF2    67             C              LD   H,A
-  EEF3    57             C              LD   D,A
-  EEF4    29             C              ADD  HL,HL
-  EEF5    29             C              ADD  HL,HL
+  EEE7    3A EAB9        C      RDARI:  LD   A,(TRACK)    ;TTTTTTTT
+  EEEA    6F             C              LD   L,A
+  EEEB    3A EAB1        C              LD   A,(SECTOR)   ;00SSSSSS
+  EEEE    A7             C              AND  A
+  EEEF    CA F2D8        C              JP   Z,DERROR     ;Zugriff auf Sektor 0
+  EEF2    5F             C              LD   E,A
+  EEF3    1D             C              DEC  E            ;CP/A beginnt mit Sektor 1
+  EEF4    AF             C              XOR  A
+  EEF5    67             C              LD   H,A
 	MACRO-80 3.44	09-Dec-81	PAGE	1-15
 
 
-  EEF6    29             C              ADD  HL,HL
+  EEF6    57             C              LD   D,A
   EEF7    29             C              ADD  HL,HL
   EEF8    29             C              ADD  HL,HL
-  EEF9    29             C              ADD  HL,HL        ;00TTTTTT TT000000
-  EEFA    19             C              ADD  HL,DE        ;00TTTTTT TTSSSSSS
-  EEFB    CB 1C          C              RR   H            ;000TTTTT
-  EEFD    CB 1D          C              RR   L            ;TTTSSSSS
-  EEFF    CB 1F          C              RR   A            ;S0000000
-  EF01    D3 E7          C              OUT  (RDADR+7),A  ;NWT
-  EF03    7D             C              LD   A,L
-  EF04    D3 E6          C              OUT  (RDADR+6),A  ;HWT
-  EF06    7C             C              LD   A,H
-  EF07    4F             C              LD   C,A          ;Akku sichern
-  EF08    CB 3F          C              SRL  A            ;0 --> A7 --> A0 --> CY
-  EF0A    CB 3F          C              SRL  A
-  EF0C    D3 E5          C              OUT  (RDADR+5),A  ;XWT
-  EF0E    79             C              LD   A,C          ;Akku zurueck
-  EF0F    E6 03          C              AND  3
-  EF11    F6 E0          C              OR   RDADR        ;Grundadresse der RAM-Disk
-  EF13    4F             C              LD   C,A
-  EF14    06 80          C              LD   B,128
-  EF16    2A EAAF        C              LD   HL,(DMA)
-  EF19    C9             C              RET
+  EEF9    29             C              ADD  HL,HL
+  EEFA    29             C              ADD  HL,HL
+  EEFB    29             C              ADD  HL,HL
+  EEFC    29             C              ADD  HL,HL        ;00TTTTTT TT000000
+  EEFD    19             C              ADD  HL,DE        ;00TTTTTT TTSSSSSS
+  EEFE    CB 1C          C              RR   H            ;000TTTTT
+  EF00    CB 1D          C              RR   L            ;TTTSSSSS
+  EF02    CB 1F          C              RR   A            ;S0000000
+  EF04    D3 E7          C              OUT  (RDADR+7),A  ;NWT
+  EF06    7D             C              LD   A,L
+  EF07    D3 E6          C              OUT  (RDADR+6),A  ;HWT
+  EF09    7C             C              LD   A,H
+  EF0A    4F             C              LD   C,A          ;Akku sichern
+  EF0B    CB 3F          C              SRL  A            ;0 --> A7 --> A0 --> CY
+  EF0D    CB 3F          C              SRL  A
+  EF0F    D3 E5          C              OUT  (RDADR+5),A  ;XWT
+  EF11    79             C              LD   A,C          ;Akku zurueck
+  EF12    E6 03          C              AND  3
+  EF14    F6 E0          C              OR   RDADR        ;Grundadresse der RAM-Disk
+  EF16    4F             C              LD   C,A
+  EF17    06 80          C              LD   B,128
+  EF19    2A EAB2        C              LD   HL,(DMA)
+  EF1C    C9             C              RET
                          C      ;
                          C      ; RAM-DISK formatieren
                          C      ; --------------------
                          C      ;
-  EF1A    21 F028        C      INITRD: LD   HL,RDTXT     ;RAM-Disk formatieren?
-  EF1D    CD F2E7        C              CALL OUTTXT
-  EF20    CD F1D8        C              CALL CONIN
-  EF23    CB AF          C              RES  5,A          ;UPCASE
-  EF25    FE 4A          C              CP   "J"
-  EF27    28 07          C              JR   Z,INITR1
-  EF29    21 F04A        C              LD   HL,NOTXT     ;nein
-  EF2C    CD F2E7        C              CALL OUTTXT
-  EF2F    C9             C              RET
+  EF1D    21 F02B        C      INITRD: LD   HL,RDTXT     ;RAM-Disk formatieren?
+  EF20    CD F2EA        C              CALL OUTTXT
+  EF23    CD F1DB        C              CALL CONIN
+  EF26    CB AF          C              RES  5,A          ;UPCASE
+  EF28    FE 4A          C              CP   "J"
+  EF2A    28 07          C              JR   Z,INITR1
+  EF2C    21 F04D        C              LD   HL,NOTXT     ;nein
+  EF2F    CD F2EA        C              CALL OUTTXT
+  EF32    C9             C              RET
                          C      ;
-  EF30    21 F046        C      INITR1: LD   HL,YESTXT    ;ja
-  EF33    CD F2E7        C              CALL OUTTXT
-  EF36    21 0080        C              LD   HL,0080H
-  EF39    22 EAAF        C              LD   (DMA),HL
-  EF3C    36 E5          C              LD   (HL),0E5H    ;DMA mit 0E5H auffuellen
-  EF3E    11 0081        C              LD   DE,0081H
-  EF41    01 007F        C              LD   BC,07FH
-  EF44    ED B0          C              LDIR
-  EF46    3E 40          C              LD   A,64         ;64 Sektoren
-  EF48    32 EAAE        C              LD   (SECTOR),A
-  EF4B    3A EED5        C              LD   A,(RDSIZE)   ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
-  EF4E    3C             C              INC  A
-  EF4F    47             C              LD   B,A          ;B-Reg.: 1=256K 2=512K 3=1024K 4=2048K
-  EF50    3E 10          C              LD   A,16         ;16 Tracks = 128K
-  EF52    CB 27          C      INITR2: SLA  A            ;A = A * 2
-  EF54    10 FC          C              DJNZ INITR2       ;1-4 Durchlaeufe, je nach RDSIZE
-  EF56    21 F04E        C              LD   HL,TICK      ;Ausgabe "-"
-  EF59    CD F2E7        C              CALL OUTTXT
-  EF5C    21 EAB6        C              LD   HL,TRACK
-  EF5F    77             C              LD   (HL),A       ;Anzahl der Tracks, bei 2048K ist A=0
-  EF60    35             C      INITR3: DEC  (HL)         ;Track--
-  EF61    7E             C              LD   A,(HL)
-  EF62    E6 1F          C              AND  31           ;jeder 32. Track, also alle 256K
+  EF33    21 F049        C      INITR1: LD   HL,YESTXT    ;ja
+  EF36    CD F2EA        C              CALL OUTTXT
+  EF39    21 0080        C              LD   HL,0080H
+  EF3C    22 EAB2        C              LD   (DMA),HL
+  EF3F    36 E5          C              LD   (HL),0E5H    ;DMA mit 0E5H auffuellen
+  EF41    11 0081        C              LD   DE,0081H
+  EF44    01 007F        C              LD   BC,07FH
+  EF47    ED B0          C              LDIR
+  EF49    3E 40          C              LD   A,64         ;64 Sektoren
+  EF4B    32 EAB1        C              LD   (SECTOR),A
+  EF4E    3A EED8        C              LD   A,(RDSIZE)   ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
+  EF51    3C             C              INC  A
+  EF52    47             C              LD   B,A          ;B-Reg.: 1=256K 2=512K 3=1024K 4=2048K
+  EF53    3E 10          C              LD   A,16         ;16 Tracks = 128K
+  EF55    CB 27          C      INITR2: SLA  A            ;A = A * 2
+  EF57    10 FC          C              DJNZ INITR2       ;1-4 Durchlaeufe, je nach RDSIZE
+  EF59    21 F051        C              LD   HL,TICK      ;Ausgabe "-"
+  EF5C    CD F2EA        C              CALL OUTTXT
+  EF5F    21 EAB9        C              LD   HL,TRACK
+  EF62    77             C              LD   (HL),A       ;Anzahl der Tracks, bei 2048K ist A=0
 	MACRO-80 3.44	09-Dec-81	PAGE	1-16
 
 
-  EF64    20 06          C              JR   NZ,INITR4
-  EF66    21 F04E        C              LD   HL,TICK      ;Ausgabe "-"
-  EF69    CD F2E7        C              CALL OUTTXT
-  EF6C    CD EEDD        C      INITR4: CALL WRRDSK
-  EF6F    21 EAAE        C              LD   HL,SECTOR
-  EF72    35             C              DEC  (HL)         ;Sektor--
-  EF73    20 F7          C              JR   NZ,INITR4
-  EF75    36 40          C              LD   (HL),64      ;64 Sektoren
-  EF77    21 EAB6        C              LD   HL,TRACK
-  EF7A    34             C              INC  (HL)
-  EF7B    35             C              DEC  (HL)         ;Track = 0 ?
-  EF7C    20 E2          C              JR   NZ,INITR3
+  EF63    35             C      INITR3: DEC  (HL)         ;Track--
+  EF64    7E             C              LD   A,(HL)
+  EF65    E6 1F          C              AND  31           ;jeder 32. Track, also alle 256K
+  EF67    20 06          C              JR   NZ,INITR4
+  EF69    21 F051        C              LD   HL,TICK      ;Ausgabe "-"
+  EF6C    CD F2EA        C              CALL OUTTXT
+  EF6F    CD EEE0        C      INITR4: CALL WRRDSK
+  EF72    21 EAB1        C              LD   HL,SECTOR
+  EF75    35             C              DEC  (HL)         ;Sektor--
+  EF76    20 F7          C              JR   NZ,INITR4
+  EF78    36 40          C              LD   (HL),64      ;64 Sektoren
+  EF7A    21 EAB9        C              LD   HL,TRACK
+  EF7D    34             C              INC  (HL)
+  EF7E    35             C              DEC  (HL)         ;Track = 0 ?
+  EF7F    20 E2          C              JR   NZ,INITR3
                          C              IFDEF FLOPPY
-  EF7E    CD EF88        C              CALL CCPWR        ;CCP + BDOS --> RAM-Disk
+  EF81    CD EF8B        C              CALL CCPWR        ;CCP + BDOS --> RAM-Disk
                          C              ENDIF
-  EF81    21 F050        C              LD   HL,INITOK
-  EF84    CD F2E7        C              CALL OUTTXT
-  EF87    C9             C              RET
+  EF84    21 F053        C              LD   HL,INITOK
+  EF87    CD F2EA        C              CALL OUTTXT
+  EF8A    C9             C              RET
                          C      ;
                          C      ; CCP + BDOS in Track 0/255 schreiben (44 Sektoren)
                          C      ; -----------------------------------
                          C      ;
                          C      IFDEF FLOPPY
-  EF88    AF             C      CCPWR:  XOR  A
+  EF8B    AF             C      CCPWR:  XOR  A
                          C      ELSE
                          C      CCPWR:  LD   A,255
                          C      ENDIF
-  EF89    32 EAB6        C              LD   (TRACK),A
-  EF8C    3E 01          C              LD   A,1
-  EF8E    32 EAAE        C              LD   (SECTOR),A
-  EF91    21 D000        C              LD   HL,CCP       ;CCP-Startadresse
-  EF94    22 EAAF        C      CCPWR1: LD   (DMA),HL
-  EF97    E5             C              PUSH HL
-  EF98    CD EEDD        C              CALL WRRDSK       ;RAM-Disk schreiben
-  EF9B    21 EAAE        C              LD   HL,SECTOR
-  EF9E    34             C              INC  (HL)         ;Sektor++
-  EF9F    E1             C              POP  HL
-  EFA0    01 0080        C              LD   BC,128
-  EFA3    09             C              ADD  HL,BC
+  EF8C    32 EAB9        C              LD   (TRACK),A
+  EF8F    3E 01          C              LD   A,1
+  EF91    32 EAB1        C              LD   (SECTOR),A
+  EF94    21 D000        C              LD   HL,CCP       ;CCP-Startadresse
+  EF97    22 EAB2        C      CCPWR1: LD   (DMA),HL
+  EF9A    E5             C              PUSH HL
+  EF9B    CD EEE0        C              CALL WRRDSK       ;RAM-Disk schreiben
+  EF9E    21 EAB1        C              LD   HL,SECTOR
+  EFA1    34             C              INC  (HL)         ;Sektor++
+  EFA2    E1             C              POP  HL
+  EFA3    01 0080        C              LD   BC,128
+  EFA6    09             C              ADD  HL,BC
                          C      IFDEF FLOPPY
-  EFA4    3E E5          C              LD   A,0E5H
+  EFA7    3E E5          C              LD   A,0E5H
                          C      ELSE
                          C              LD   A,0F5H
                          C      ENDIF
-  EFA6    BC             C              CP   H
-  EFA7    30 EB          C              JR   NC,CCPWR1    ;0E600H/0F600H noch nicht erreicht
-  EFA9    C9             C              RET
+  EFA9    BC             C              CP   H
+  EFAA    30 EB          C              JR   NC,CCPWR1    ;0E600H/0F600H noch nicht erreicht
+  EFAC    C9             C              RET
                          C      ;
                          C      ; CCP + BDOS von Track 0/255 lesen (44 Sektoren)
                          C      ; --------------------------------
                          C      ;
                          C      IFDEF FLOPPY
-  EFAA    AF             C      CCPRD:  XOR  A
+  EFAD    AF             C      CCPRD:  XOR  A
                          C      ELSE
                          C      CCPRD:  LD   A,255
                          C      ENDIF
-  EFAB    32 EAB6        C              LD   (TRACK),A
-  EFAE    3E 01          C              LD   A,1
-  EFB0    32 EAAE        C              LD   (SECTOR),A
-  EFB3    21 D000        C              LD   HL,CCP       ;CCP-Startadresse
+  EFAE    32 EAB9        C              LD   (TRACK),A
 	MACRO-80 3.44	09-Dec-81	PAGE	1-17
 
 
-  EFB6    22 EAAF        C      CCPRD1: LD   (DMA),HL
-  EFB9    E5             C              PUSH HL
-  EFBA    CD EED6        C              CALL RDRDSK       ;RAM-Disk lesen
-  EFBD    21 EAAE        C              LD   HL,SECTOR
-  EFC0    34             C              INC  (HL)         ;Sektor++
-  EFC1    E1             C              POP  HL
-  EFC2    01 0080        C              LD   BC,128
-  EFC5    09             C              ADD  HL,BC
+  EFB1    3E 01          C              LD   A,1
+  EFB3    32 EAB1        C              LD   (SECTOR),A
+  EFB6    21 D000        C              LD   HL,CCP       ;CCP-Startadresse
+  EFB9    22 EAB2        C      CCPRD1: LD   (DMA),HL
+  EFBC    E5             C              PUSH HL
+  EFBD    CD EED9        C              CALL RDRDSK       ;RAM-Disk lesen
+  EFC0    21 EAB1        C              LD   HL,SECTOR
+  EFC3    34             C              INC  (HL)         ;Sektor++
+  EFC4    E1             C              POP  HL
+  EFC5    01 0080        C              LD   BC,128
+  EFC8    09             C              ADD  HL,BC
                          C      IFDEF FLOPPY
-  EFC6    3E E5          C              LD   A,0E5H
+  EFC9    3E E5          C              LD   A,0E5H
                          C      ELSE
                          C              LD   A,0F5H
                          C      ENDIF
-  EFC8    BC             C              CP   H
-  EFC9    30 EB          C              JR   NC,CCPRD1    ;0E600H/0F600H noch nicht erreicht
-  EFCB    C9             C              RET
+  EFCB    BC             C              CP   H
+  EFCC    30 EB          C              JR   NC,CCPRD1    ;0E600H/0F600H noch nicht erreicht
+  EFCE    C9             C              RET
                          C      ;
                          C      ; Test der RAM-Disk - Size (256 / 512 / 1024 / 2048 KByte)
                          C      ; ------------------------
                          C      ;
-  EFCC    AF             C      RDTEST: XOR  A            ;Kapazitaet der RAM-Disk testen
-  EFCD    D3 E6          C              OUT  (RDADR+6),A  ;H-Adresse ruecksetzen
-  EFCF    0E E0          C              LD   C,RDADR      ;Test erfolgt in der 1. RAM-Bank
+  EFCF    AF             C      RDTEST: XOR  A            ;Kapazitaet der RAM-Disk testen
+  EFD0    D3 E6          C              OUT  (RDADR+6),A  ;H-Adresse ruecksetzen
+  EFD2    0E E0          C              LD   C,RDADR      ;Test erfolgt in der 1. RAM-Bank
                          C      ;
                          C      ; Inhalte der 4 RAM-Testzellen sichern
                          C      ;
-  EFD1    21 EED1        C              LD   HL,RDMERK    ;Merkzellen im RAM
-  EFD4    06 04          C              LD   B,4          ;4 Durchlaeufe
-  EFD6    16 04          C              LD   D,4          ;Startwert Extended-Adresse
-  EFD8    AF             C      RDTST1: XOR  A
-  EFD9    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
-  EFDB    7A             C              LD   A,D
-  EFDC    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
-  EFDE    ED 78          C              IN   A,(C)
-  EFE0    77             C              LD   (HL),A       ;Daten aus der RAM-Disk sichern
-  EFE1    23             C              INC  HL           ;Merkzelle++
-  EFE2    CB 3A          C              SRL  D            ;0 --> D7 --> D0 --> CY
-  EFE4    10 F2          C              DJNZ RDTST1
+  EFD4    21 EED4        C              LD   HL,RDMERK    ;Merkzellen im RAM
+  EFD7    06 04          C              LD   B,4          ;4 Durchlaeufe
+  EFD9    16 04          C              LD   D,4          ;Startwert Extended-Adresse
+  EFDB    AF             C      RDTST1: XOR  A
+  EFDC    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
+  EFDE    7A             C              LD   A,D
+  EFDF    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
+  EFE1    ED 78          C              IN   A,(C)
+  EFE3    77             C              LD   (HL),A       ;Daten aus der RAM-Disk sichern
+  EFE4    23             C              INC  HL           ;Merkzelle++
+  EFE5    CB 3A          C              SRL  D            ;0 --> D7 --> D0 --> CY
+  EFE7    10 F2          C              DJNZ RDTST1
                          C      ;
                          C      ; 4 Testwerte in die RAM-Disk schreiben
                          C      ;
-  EFE6    06 04          C              LD   B,4          ;4 Durchlaeufe
-  EFE8    16 04          C              LD   D,4          ;Startwert Extended-Adresse
-  EFEA    AF             C      RDTST2: XOR  A
-  EFEB    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
-  EFED    7A             C              LD   A,D
-  EFEE    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
-  EFF0    ED 79          C              OUT  (C),A        ;Testwert in die RAM-Disk schreiben
-  EFF2    CB 3A          C              SRL  D            ;0 --> D7 --> D0 --> CY
-  EFF4    10 F4          C              DJNZ RDTST2
+  EFE9    06 04          C              LD   B,4          ;4 Durchlaeufe
+  EFEB    16 04          C              LD   D,4          ;Startwert Extended-Adresse
+  EFED    AF             C      RDTST2: XOR  A
+  EFEE    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
+  EFF0    7A             C              LD   A,D
+  EFF1    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
+  EFF3    ED 79          C              OUT  (C),A        ;Testwert in die RAM-Disk schreiben
+  EFF5    CB 3A          C              SRL  D            ;0 --> D7 --> D0 --> CY
+  EFF7    10 F4          C              DJNZ RDTST2
                          C      ;
                          C      ;Tabelle der Test-Werte (mit *...* sind die zu testenden Werte):
                          C      ;
@@ -1129,75 +1132,75 @@
                          C      ;Extended-Adresse=00000100B    0      0      0     *4*
                          C      ;Extended-Adresse=00000010B    0      0     *2*     2
                          C      ;Extended-Adresse=00000001B    0     *1*     1      1
-                         C      ;Extended-Adresse=00000000B   *0*     0      0      0
-                         C      ;
-                         C      ; Groesse der RAM-Disk bestimmen
 	MACRO-80 3.44	09-Dec-81	PAGE	1-18
 
 
+                         C      ;Extended-Adresse=00000000B   *0*     0      0      0
                          C      ;
-  EFF6    06 04          C              LD   B,4          ;4 Durchlaeufe
-  EFF8    16 04          C              LD   D,4          ;Startwert Extended-Adresse
-  EFFA    AF             C      RDTST3: XOR  A
-  EFFB    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
-  EFFD    7A             C              LD   A,D
-  EFFE    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
-  F000    ED 78          C              IN   A,(C)
-  F002    BA             C              CP   D
-  F003    28 07          C              JR   Z,RDTST4     ;2048(B=4),1024(B=3),512(B=2),256(B=1)
-  F005    CB 3A          C              SRL  D            ;0 --> D7 --> D0 --> CY
-  F007    10 F1          C              DJNZ RDTST3
-  F009    C3 F2D5        C              JP   DERROR       ;Fehler: hier stimmt was nicht!
+                         C      ; Groesse der RAM-Disk bestimmen
                          C      ;
-  F00C    21 EED5        C      RDTST4: LD   HL,RDSIZE
-  F00F    05             C              DEC  B
-  F010    70             C              LD   (HL),B       ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
+  EFF9    06 04          C              LD   B,4          ;4 Durchlaeufe
+  EFFB    16 04          C              LD   D,4          ;Startwert Extended-Adresse
+  EFFD    AF             C      RDTST3: XOR  A
+  EFFE    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
+  F000    7A             C              LD   A,D
+  F001    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
+  F003    ED 78          C              IN   A,(C)
+  F005    BA             C              CP   D
+  F006    28 07          C              JR   Z,RDTST4     ;2048(B=4),1024(B=3),512(B=2),256(B=1)
+  F008    CB 3A          C              SRL  D            ;0 --> D7 --> D0 --> CY
+  F00A    10 F1          C              DJNZ RDTST3
+  F00C    C3 F2D8        C              JP   DERROR       ;Fehler: hier stimmt was nicht!
+                         C      ;
+  F00F    21 EED8        C      RDTST4: LD   HL,RDSIZE
+  F012    05             C              DEC  B
+  F013    70             C              LD   (HL),B       ;RD-Size: 0=256K 1=512K 2=1024K 3=2048K
                          C      ;
                          C      ; gesicherte Daten in die RAM-Disk zurueckschreiben
                          C      ; 
-  F011    21 EED4        C              LD   HL,RDMERK+3  ;Merkzellen RAM (letzter Eintrag)
-  F014    04             C              INC  B            ;1 bis 4 Durchlaeufe, je nach RDSIZE
-  F015    16 01          C              LD   D,1          ;Startwert Ext.-Adr. (1 Bit n. rechts)
-  F017    AF             C      RDTST5: XOR  A
-  F018    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
-  F01A    7A             C              LD   A,D
-  F01B    CB 3F          C              SRL  A            ;0 --> A7 --> A0 --> CY
-  F01D    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
-  F01F    7E             C              LD   A,(HL)
-  F020    ED 79          C              OUT  (C),A        ;urspruengliche Daten zurueckschreiben
-  F022    2B             C              DEC  HL
-  F023    CB 22          C              SLA  D            ;CY <-- D7 <-- D0 <-- 0
-  F025    10 F0          C              DJNZ RDTST5       ;WICHTIG: nicht mehr als notwendig
-  F027    C9             C              RET               ;in die RAM-Disk zurueckschreiben!
+  F014    21 EED7        C              LD   HL,RDMERK+3  ;Merkzellen RAM (letzter Eintrag)
+  F017    04             C              INC  B            ;1 bis 4 Durchlaeufe, je nach RDSIZE
+  F018    16 01          C              LD   D,1          ;Startwert Ext.-Adr. (1 Bit n. rechts)
+  F01A    AF             C      RDTST5: XOR  A
+  F01B    D3 E7          C              OUT  (RDADR+7),A  ;L-Adresse ruecksetzen
+  F01D    7A             C              LD   A,D
+  F01E    CB 3F          C              SRL  A            ;0 --> A7 --> A0 --> CY
+  F020    D3 E5          C              OUT  (RDADR+5),A  ;Extended-Adresse auswaehlen
+  F022    7E             C              LD   A,(HL)
+  F023    ED 79          C              OUT  (C),A        ;urspruengliche Daten zurueckschreiben
+  F025    2B             C              DEC  HL
+  F026    CB 22          C              SLA  D            ;CY <-- D7 <-- D0 <-- 0
+  F028    10 F0          C              DJNZ RDTST5       ;WICHTIG: nicht mehr als notwendig
+  F02A    C9             C              RET               ;in die RAM-Disk zurueckschreiben!
                          C      ;
-  F028    52 41 4D 2D    C      RDTXT:  DEFM 'RAM-Disk formatieren? (J/N): '
-  F02C    44 69 73 6B    C      
-  F030    20 66 6F 72    C      
-  F034    6D 61 74 69    C      
-  F038    65 72 65 6E    C      
-  F03C    3F 20 28 4A    C      
-  F040    2F 4E 29 3A    C      
-  F044    20             C      
-  F045    00             C              DEFB 00H
-  F046    4A             C      YESTXT: DEFM 'J'
-  F047    0D 0A 00       C              DEFB 0DH,0AH,00H
-  F04A    4E             C      NOTXT:  DEFM 'N'
-  F04B    0D 0A 00       C              DEFB 0DH,0AH,00H
-  F04E    2D 00          C      TICK:   DEFB 2DH,00H
-  F050    3E 20 49 6E    C      INITOK: DEFM '> Init. O.K.'
-  F054    69 74 2E 20    C      
-  F058    4F 2E 4B 2E    C      
-  F05C    0D 0A 00       C              DEFB 0DH,0AH,00H
+  F02B    52 41 4D 2D    C      RDTXT:  DEFM 'RAM-Disk formatieren? (J/N): '
+  F02F    44 69 73 6B    C      
+  F033    20 66 6F 72    C      
+  F037    6D 61 74 69    C      
+  F03B    65 72 65 6E    C      
+  F03F    3F 20 28 4A    C      
+  F043    2F 4E 29 3A    C      
+  F047    20             C      
+  F048    00             C              DEFB 00H
+  F049    4A             C      YESTXT: DEFM 'J'
+  F04A    0D 0A 00       C              DEFB 0DH,0AH,00H
+  F04D    4E             C      NOTXT:  DEFM 'N'
+  F04E    0D 0A 00       C              DEFB 0DH,0AH,00H
+  F051    2D 00          C      TICK:   DEFB 2DH,00H
+  F053    3E 20 49 6E    C      INITOK: DEFM '> Init. O.K.'
+  F057    69 74 2E 20    C      
+  F05B    4F 2E 4B 2E    C      
+  F05F    0D 0A 00       C              DEFB 0DH,0AH,00H
                          C      ;
                                 ;
                                         .PRINTX '--> CONSOLE'
                          C      $INCLUDE CONSOLE.INC
-                         C      ;       ***************************
-                         C      ;       *                         *
-                         C      ;       * CONOUT, CONIN und CONST *
 	MACRO-80 3.44	09-Dec-81	PAGE	1-19
 
 
+                         C      ;       ***************************
+                         C      ;       *                         *
+                         C      ;       * CONOUT, CONIN und CONST *
                          C      ;       *                         *
                          C      ;       ***************************
                          C      ;
@@ -1205,609 +1208,609 @@
                          C      ;
   005F                   C      CURSOR  EQU  5FH          ;Cursorsymbol "_"
                          C      ;
-  F05F    F3             C      CONOUT: DI
-  F060    ED 73 F5DD     C              LD   (SAVSTK),SP
-  F064    31 F65D        C              LD   SP,BIOSTK
-  F067    FB             C              EI
-  F068    F5             C              PUSH AF
-  F069    C5             C              PUSH BC
-  F06A    D5             C              PUSH DE
-  F06B    E5             C              PUSH HL
-  F06C    3E 00          C              LD   A,AC1MOD
-  F06E    D3 1E          C              OUT  (MAP),A
-  F070    2A F2A2        C              LD   HL,(CURSP)
-  F073    3A F2A6        C              LD   A,(MERKUR)
-  F076    77             C              LD   (HL),A
-  F077    AF             C              XOR  A
-  F078    21 F2A5        C              LD   HL,ESCCNT    ;Escapesequenz ?
-  F07B    B6             C              OR   (HL)
-  F07C    28 2D          C              JR   Z,VERGL      ;Nein
-  F07E    CB B9          C              RES  7,C
-  F080    35             C              DEC  (HL)
-  F081    28 05          C              JR   Z,DIPOS      ;C --> Spaltennummer
-  F083    2B             C              DEC  HL
-  F084    71             C              LD   (HL),C       ;C --> Zeilennummer
-  F085    C3 F1C0        C              JP   COEND
+  F062    F3             C      CONOUT: DI
+  F063    ED 73 F5E0     C              LD   (SAVSTK),SP
+  F067    31 F660        C              LD   SP,BIOSTK
+  F06A    FB             C              EI
+  F06B    F5             C              PUSH AF
+  F06C    C5             C              PUSH BC
+  F06D    D5             C              PUSH DE
+  F06E    E5             C              PUSH HL
+  F06F    3E 00          C              LD   A,AC1MOD
+  F071    D3 1E          C              OUT  (MAP),A
+  F073    2A F2A5        C              LD   HL,(CURSP)
+  F076    3A F2A9        C              LD   A,(MERKUR)
+  F079    77             C              LD   (HL),A
+  F07A    AF             C              XOR  A
+  F07B    21 F2A8        C              LD   HL,ESCCNT    ;Escapesequenz ?
+  F07E    B6             C              OR   (HL)
+  F07F    28 2D          C              JR   Z,VERGL      ;Nein
+  F081    CB B9          C              RES  7,C
+  F083    35             C              DEC  (HL)
+  F084    28 05          C              JR   Z,DIPOS      ;C --> Spaltennummer
+  F086    2B             C              DEC  HL
+  F087    71             C              LD   (HL),C       ;C --> Zeilennummer
+  F088    C3 F1C3        C              JP   COEND
                          C      ;
-  F088    2B             C      DIPOS:  DEC  HL
-  F089    7E             C              LD   A,(HL)       ;Zeilennummer
-  F08A    E6 1F          C              AND  1FH
-  F08C    5F             C              LD   E,A
-  F08D    16 00          C              LD   D,0          ;Zeilennummer --> DE
-  F08F    79             C              LD   A,C          ;Spaltennummer
-  F090    E6 3F          C              AND  3FH
-  F092    6F             C              LD   L,A
-  F093    26 00          C              LD   H,0          ;Spaltennummer --> HL
-  F095    06 06          C              LD   B,6
-  F097    CB 23          C      DIPOS1: SLA  E
-  F099    CB 12          C              RL   D
-  F09B    10 FA          C              DJNZ DIPOS1
-  F09D    19             C              ADD  HL,DE
-  F09E    EB             C              EX   DE,HL
-  F09F    21 17FF        C              LD   HL,17FFH
-  F0A2    A7             C              AND  A
-  F0A3    ED 52          C              SBC  HL,DE
-  F0A5    22 F2A2        C              LD   (CURSP),HL
-  F0A8    C3 F1C0        C              JP   COEND
+  F08B    2B             C      DIPOS:  DEC  HL
+  F08C    7E             C              LD   A,(HL)       ;Zeilennummer
+  F08D    E6 1F          C              AND  1FH
+  F08F    5F             C              LD   E,A
+  F090    16 00          C              LD   D,0          ;Zeilennummer --> DE
+  F092    79             C              LD   A,C          ;Spaltennummer
+  F093    E6 3F          C              AND  3FH
+  F095    6F             C              LD   L,A
+  F096    26 00          C              LD   H,0          ;Spaltennummer --> HL
+  F098    06 06          C              LD   B,6
+  F09A    CB 23          C      DIPOS1: SLA  E
+  F09C    CB 12          C              RL   D
+  F09E    10 FA          C              DJNZ DIPOS1
+  F0A0    19             C              ADD  HL,DE
+  F0A1    EB             C              EX   DE,HL
+  F0A2    21 17FF        C              LD   HL,17FFH
+  F0A5    A7             C              AND  A
+  F0A6    ED 52          C              SBC  HL,DE
+  F0A8    22 F2A5        C              LD   (CURSP),HL
+  F0AB    C3 F1C3        C              JP   COEND
                          C      ;
-  F0AB    2A F2A2        C      VERGL:  LD   HL,(CURSP)
-  F0AE    79             C              LD   A,C
-  F0AF    FE 82          C              CP   82H
-  F0B1    CA F17E        C              JP   Z,CUON       ;Cursor einschalten
-  F0B4    FE 83          C              CP   83H
-  F0B6    CA F190        C              JP   Z,CUOFF      ;Cursor abschalten
-  F0B9    CB BF          C              RES  7,A
-  F0BB    FE 1B          C              CP   1BH
+  F0AE    2A F2A5        C      VERGL:  LD   HL,(CURSP)
+  F0B1    79             C              LD   A,C
+  F0B2    FE 82          C              CP   82H
+  F0B4    CA F181        C              JP   Z,CUON       ;Cursor einschalten
+  F0B7    FE 83          C              CP   83H
 	MACRO-80 3.44	09-Dec-81	PAGE	1-20
 
 
-  F0BD    28 58          C              JR   Z,ESCAPE     ;ESC
-  F0BF    FE 01          C              CP   1
-  F0C1    28 5C          C              JR   Z,CUHOME     ;HOME
-  F0C3    FE 07          C              CP   7
-  F0C5    28 61          C              JR   Z,BEEP       ;BEEP
-  F0C7    FE 0A          C              CP   0AH
-  F0C9    28 6F          C              JR   Z,LF         ;LINEFEED
-  F0CB    FE 0D          C              CP   0DH
-  F0CD    28 2A          C              JR   Z,CR         ;CR
-  F0CF    FE 15          C              CP   15H
-  F0D1    28 6F          C              JR   Z,CURECH     ;Cursor nach rechts
-  F0D3    FE 16          C              CP   16H
-  F0D5    CA F167        C              JP   Z,DELEND     ;loescht Cu. -> ZE
-  F0D8    FE 18          C              CP   18H
-  F0DA    CA F173        C              JP   Z,DELLIN     ;loescht zeile,Cu <-
-  F0DD    FE 1A          C              CP   1AH
-  F0DF    28 6E          C              JR   Z,CURSUP     ;Cursor eine Z. hoch
-  F0E1    FE 7F          C              CP   7FH
-  F0E3    28 60          C              JR   Z,DEL        ;DELETE
-  F0E5    FE 14          C              CP   14H
-  F0E7    28 74          C              JR   Z,CLRTES     ;Clear to end screen
-  F0E9    FE 0C          C              CP   0CH
-  F0EB    28 16          C              JR   Z,CLS        ;CLS
-  F0ED    FE 08          C              CP   8
-  F0EF    28 0F          C              JR   Z,BS         ;BACKSPACE
-  F0F1    FE 20          C              CP   20H
-  F0F3    DA F1C0        C              JP   C,COEND
-  F0F6    C3 F19B        C              JP   OUTZEI       ;Ausgabe auf BS
+  F0B9    CA F193        C              JP   Z,CUOFF      ;Cursor abschalten
+  F0BC    CB BF          C              RES  7,A
+  F0BE    FE 1B          C              CP   1BH
+  F0C0    28 58          C              JR   Z,ESCAPE     ;ESC
+  F0C2    FE 01          C              CP   1
+  F0C4    28 5C          C              JR   Z,CUHOME     ;HOME
+  F0C6    FE 07          C              CP   7
+  F0C8    28 61          C              JR   Z,BEEP       ;BEEP
+  F0CA    FE 0A          C              CP   0AH
+  F0CC    28 6F          C              JR   Z,LF         ;LINEFEED
+  F0CE    FE 0D          C              CP   0DH
+  F0D0    28 2A          C              JR   Z,CR         ;CR
+  F0D2    FE 15          C              CP   15H
+  F0D4    28 6F          C              JR   Z,CURECH     ;Cursor nach rechts
+  F0D6    FE 16          C              CP   16H
+  F0D8    CA F16A        C              JP   Z,DELEND     ;loescht Cu. -> ZE
+  F0DB    FE 18          C              CP   18H
+  F0DD    CA F176        C              JP   Z,DELLIN     ;loescht zeile,Cu <-
+  F0E0    FE 1A          C              CP   1AH
+  F0E2    28 6E          C              JR   Z,CURSUP     ;Cursor eine Z. hoch
+  F0E4    FE 7F          C              CP   7FH
+  F0E6    28 60          C              JR   Z,DEL        ;DELETE
+  F0E8    FE 14          C              CP   14H
+  F0EA    28 74          C              JR   Z,CLRTES     ;Clear to end screen
+  F0EC    FE 0C          C              CP   0CH
+  F0EE    28 16          C              JR   Z,CLS        ;CLS
+  F0F0    FE 08          C              CP   8
+  F0F2    28 0F          C              JR   Z,BS         ;BACKSPACE
+  F0F4    FE 20          C              CP   20H
+  F0F6    DA F1C3        C              JP   C,COEND
+  F0F9    C3 F19E        C              JP   OUTZEI       ;Ausgabe auf BS
                          C      ;
-  F0F9    7D             C      CR:     LD   A,L
-  F0FA    F6 3F          C              OR   3FH
-  F0FC    6F             C              LD   L,A
-  F0FD    C3 F19D        C              JP   COEND1
+  F0FC    7D             C      CR:     LD   A,L
+  F0FD    F6 3F          C              OR   3FH
+  F0FF    6F             C              LD   L,A
+  F100    C3 F1A0        C              JP   COEND1
                          C      ;
-  F100    23             C      BS:     INC  HL
-  F101    18 50          C              JR   UP1
+  F103    23             C      BS:     INC  HL
+  F104    18 50          C              JR   UP1
                          C      ;
-  F103    3E 20          C      CLS:    LD   A,20H
-  F105    21 1000        C              LD   HL,1000H
-  F108    11 1001        C              LD   DE,1001H
-  F10B    01 07FF        C              LD   BC,07FFH
-  F10E    77             C              LD   (HL),A
-  F10F    ED B0          C              LDIR
-  F111    22 F2A2        C              LD   (CURSP),HL
-  F114    C3 F1C0        C              JP   COEND
+  F106    3E 20          C      CLS:    LD   A,20H
+  F108    21 1000        C              LD   HL,1000H
+  F10B    11 1001        C              LD   DE,1001H
+  F10E    01 07FF        C              LD   BC,07FFH
+  F111    77             C              LD   (HL),A
+  F112    ED B0          C              LDIR
+  F114    22 F2A5        C              LD   (CURSP),HL
+  F117    C3 F1C3        C              JP   COEND
                          C      ;
-  F117    3E 02          C      ESCAPE: LD   A,2          ;2 Argumente folgen
-  F119    32 F2A5        C              LD   (ESCCNT),A
-  F11C    C3 F1C0        C              JP   COEND
+  F11A    3E 02          C      ESCAPE: LD   A,2          ;2 Argumente folgen
+  F11C    32 F2A8        C              LD   (ESCCNT),A
+  F11F    C3 F1C3        C              JP   COEND
                          C      ;
-  F11F    21 17FF        C      CUHOME: LD   HL,17FFH
-  F122    22 F2A2        C              LD   (CURSP),HL
-  F125    C3 F1C0        C              JP   COEND
+  F122    21 17FF        C      CUHOME: LD   HL,17FFH
+  F125    22 F2A5        C              LD   (CURSP),HL
+  F128    C3 F1C3        C              JP   COEND
                          C      ;
-  F128    0E FF          C      BEEP:   LD   C,0FFH
-  F12A    06 90          C      BEEP0:  LD   B,90H
-  F12C    10 FE          C      BEEP1:  DJNZ BEEP1
-  F12E    DB 05          C              IN   A,(PIO1BD)
-  F130    EE 41          C              XOR  41H          ;PB0 und PB6 ---> Piep
-  F132    D3 05          C              OUT  (PIO1BD),A
+  F12B    0E FF          C      BEEP:   LD   C,0FFH
+  F12D    06 90          C      BEEP0:  LD   B,90H
+  F12F    10 FE          C      BEEP1:  DJNZ BEEP1
 	MACRO-80 3.44	09-Dec-81	PAGE	1-21
 
 
-  F134    0D             C              DEC  C
-  F135    20 F3          C              JR   NZ,BEEP0
-  F137    C3 F1C0        C              JP   COEND
+  F131    DB 05          C              IN   A,(PIO1BD)
+  F133    EE 41          C              XOR  41H          ;PB0 und PB6 ---> Piep
+  F135    D3 05          C              OUT  (PIO1BD),A
+  F137    0D             C              DEC  C
+  F138    20 F3          C              JR   NZ,BEEP0
+  F13A    C3 F1C3        C              JP   COEND
                          C      ;
-  F13A    11 0040        C      LF:     LD   DE,40H
-  F13D    A7             C              AND  A
-  F13E    ED 52          C              SBC  HL,DE
-  F140    18 5B          C              JR   COEND1
+  F13D    11 0040        C      LF:     LD   DE,40H
+  F140    A7             C              AND  A
+  F141    ED 52          C              SBC  HL,DE
+  F143    18 5B          C              JR   COEND1
                          C      ;
-  F142    2B             C      CURECH: DEC  HL
-  F143    18 58          C              JR   COEND1
+  F145    2B             C      CURECH: DEC  HL
+  F146    18 58          C              JR   COEND1
                          C      ;
-  F145    23             C      DEL:    INC  HL
-  F146    3E 18          C              LD   A,18H
-  F148    BC             C              CP   H
-  F149    28 75          C              JR   Z,COEND
-  F14B    36 20          C              LD   (HL),20H
-  F14D    18 4E          C              JR   COEND1
+  F148    23             C      DEL:    INC  HL
+  F149    3E 18          C              LD   A,18H
+  F14B    BC             C              CP   H
+  F14C    28 75          C              JR   Z,COEND
+  F14E    36 20          C              LD   (HL),20H
+  F150    18 4E          C              JR   COEND1
                          C      ;
-  F14F    11 0040        C      CURSUP: LD   DE,40H
-  F152    19             C              ADD  HL,DE
-  F153    3E 18          C      UP1:    LD   A,18H
-  F155    BC             C              CP   H
-  F156    28 68          C              JR   Z,COEND
-  F158    22 F2A2        C              LD   (CURSP),HL
-  F15B    18 63          C              JR   COEND
+  F152    11 0040        C      CURSUP: LD   DE,40H
+  F155    19             C              ADD  HL,DE
+  F156    3E 18          C      UP1:    LD   A,18H
+  F158    BC             C              CP   H
+  F159    28 68          C              JR   Z,COEND
+  F15B    22 F2A5        C              LD   (CURSP),HL
+  F15E    18 63          C              JR   COEND
                          C      ;
-  F15D    3E 0F          C      CLRTES: LD   A,0FH
-  F15F    36 20          C      SPACE1: LD   (HL),20H
-  F161    2B             C              DEC  HL
-  F162    BC             C              CP   H
-  F163    20 FA          C              JR   NZ,SPACE1
-  F165    18 59          C              JR   COEND
+  F160    3E 0F          C      CLRTES: LD   A,0FH
+  F162    36 20          C      SPACE1: LD   (HL),20H
+  F164    2B             C              DEC  HL
+  F165    BC             C              CP   H
+  F166    20 FA          C              JR   NZ,SPACE1
+  F168    18 59          C              JR   COEND
                          C      ;
-  F167    7D             C      DELEND: LD   A,L
-  F168    E6 3F          C              AND  3FH
-  F16A    47             C              LD   B,A
-  F16B    04             C              INC  B
-  F16C    36 20          C      SPACE2: LD   (HL),20H
-  F16E    2B             C              DEC  HL
-  F16F    10 FB          C              DJNZ SPACE2
-  F171    18 4D          C              JR   COEND
+  F16A    7D             C      DELEND: LD   A,L
+  F16B    E6 3F          C              AND  3FH
+  F16D    47             C              LD   B,A
+  F16E    04             C              INC  B
+  F16F    36 20          C      SPACE2: LD   (HL),20H
+  F171    2B             C              DEC  HL
+  F172    10 FB          C              DJNZ SPACE2
+  F174    18 4D          C              JR   COEND
                          C      ;
-  F173    7D             C      DELLIN: LD   A,L
-  F174    F6 3F          C              OR   3FH
-  F176    6F             C              LD   L,A
-  F177    22 F2A2        C              LD   (CURSP),HL
-  F17A    06 40          C              LD   B,40H
-  F17C    18 EE          C              JR   SPACE2
+  F176    7D             C      DELLIN: LD   A,L
+  F177    F6 3F          C              OR   3FH
+  F179    6F             C              LD   L,A
+  F17A    22 F2A5        C              LD   (CURSP),HL
+  F17D    06 40          C              LD   B,40H
+  F17F    18 EE          C              JR   SPACE2
                          C      ;
-  F17E    3E 36          C      CUON:   LD   A,36H        ;LD (HL),...
-  F180    21 F1C7        C              LD   HL,ON1
-  F183    77             C              LD   (HL),A
-  F184    23             C              INC  HL
-  F185    36 5F          C              LD   (HL),CURSOR
-  F187    21 F1EB        C              LD   HL,COIN1
-  F18A    77             C              LD   (HL),A
-  F18B    23             C              INC  HL
-  F18C    36 5F          C              LD   (HL),CURSOR
-  F18E    18 30          C              JR   COEND
+  F181    3E 36          C      CUON:   LD   A,36H        ;LD (HL),...
+  F183    21 F1CA        C              LD   HL,ON1
+  F186    77             C              LD   (HL),A
+  F187    23             C              INC  HL
+  F188    36 5F          C              LD   (HL),CURSOR
+  F18A    21 F1EE        C              LD   HL,COIN1
+  F18D    77             C              LD   (HL),A
 	MACRO-80 3.44	09-Dec-81	PAGE	1-22
 
 
+  F18E    23             C              INC  HL
+  F18F    36 5F          C              LD   (HL),CURSOR
+  F191    18 30          C              JR   COEND
                          C      ;
-  F190    21 0000        C      CUOFF:  LD   HL,0
-  F193    22 F1C7        C              LD   (ON1),HL
-  F196    22 F1EB        C              LD   (COIN1),HL
-  F199    18 25          C              JR   COEND
+  F193    21 0000        C      CUOFF:  LD   HL,0
+  F196    22 F1CA        C              LD   (ON1),HL
+  F199    22 F1EE        C              LD   (COIN1),HL
+  F19C    18 25          C              JR   COEND
                          C      ;
-  F19B    77             C      OUTZEI: LD   (HL),A
-  F19C    2B             C              DEC  HL
-  F19D    EB             C      COEND1: EX   DE,HL
-  F19E    21 0FFF        C              LD   HL,0FFFH
-  F1A1    A7             C              AND  A
-  F1A2    ED 52          C              SBC  HL,DE
-  F1A4    EB             C              EX   DE,HL
-  F1A5    22 F2A2        C              LD   (CURSP),HL
-  F1A8    38 16          C              JR   C,COEND
-  F1AA    21 17BF        C              LD   HL,17BFH
-  F1AD    11 17FF        C              LD   DE,17FFH
-  F1B0    01 07C0        C              LD   BC,07C0H
-  F1B3    ED B8          C              LDDR              ;Bild rollen
-  F1B5    ED 53 F2A2     C              LD   (CURSP),DE
-  F1B9    EB             C              EX   DE,HL
-  F1BA    2C             C              INC  L
-  F1BB    2D             C      SPACE3: DEC  L
-  F1BC    36 20          C              LD   (HL),20H
-  F1BE    20 FB          C              JR   NZ,SPACE3
-  F1C0    2A F2A2        C      COEND:  LD   HL,(CURSP)
-  F1C3    7E             C              LD   A,(HL)
-  F1C4    32 F2A6        C              LD   (MERKUR),A
-  F1C7    36 5F          C      ON1:    LD   (HL),CURSOR
-  F1C9    3E 01          C              LD   A,CPMMOD
-  F1CB    D3 1E          C              OUT  (MAP),A
-  F1CD    E1             C              POP  HL
-  F1CE    D1             C              POP  DE
-  F1CF    C1             C              POP  BC
-  F1D0    F1             C              POP  AF
-  F1D1    F3             C              DI
-  F1D2    ED 7B F5DD     C              LD   SP,(SAVSTK)
-  F1D6    FB             C              EI
-  F1D7    C9             C              RET
+  F19E    77             C      OUTZEI: LD   (HL),A
+  F19F    2B             C              DEC  HL
+  F1A0    EB             C      COEND1: EX   DE,HL
+  F1A1    21 0FFF        C              LD   HL,0FFFH
+  F1A4    A7             C              AND  A
+  F1A5    ED 52          C              SBC  HL,DE
+  F1A7    EB             C              EX   DE,HL
+  F1A8    22 F2A5        C              LD   (CURSP),HL
+  F1AB    38 16          C              JR   C,COEND
+  F1AD    21 17BF        C              LD   HL,17BFH
+  F1B0    11 17FF        C              LD   DE,17FFH
+  F1B3    01 07C0        C              LD   BC,07C0H
+  F1B6    ED B8          C              LDDR              ;Bild rollen
+  F1B8    ED 53 F2A5     C              LD   (CURSP),DE
+  F1BC    EB             C              EX   DE,HL
+  F1BD    2C             C              INC  L
+  F1BE    2D             C      SPACE3: DEC  L
+  F1BF    36 20          C              LD   (HL),20H
+  F1C1    20 FB          C              JR   NZ,SPACE3
+  F1C3    2A F2A5        C      COEND:  LD   HL,(CURSP)
+  F1C6    7E             C              LD   A,(HL)
+  F1C7    32 F2A9        C              LD   (MERKUR),A
+  F1CA    36 5F          C      ON1:    LD   (HL),CURSOR
+  F1CC    3E 01          C              LD   A,CPMMOD
+  F1CE    D3 1E          C              OUT  (MAP),A
+  F1D0    E1             C              POP  HL
+  F1D1    D1             C              POP  DE
+  F1D2    C1             C              POP  BC
+  F1D3    F1             C              POP  AF
+  F1D4    F3             C              DI
+  F1D5    ED 7B F5E0     C              LD   SP,(SAVSTK)
+  F1D9    FB             C              EI
+  F1DA    C9             C              RET
                          C      ;
-  F1D8    F3             C      CONIN:  DI
-  F1D9    ED 73 F5DD     C              LD   (SAVSTK),SP
-  F1DD    31 F65D        C              LD   SP,BIOSTK
-  F1E0    FB             C              EI
-  F1E1    3E 00          C              LD   A,AC1MOD
-  F1E3    D3 1E          C              OUT  (MAP),A
-  F1E5    C5             C              PUSH BC
-  F1E6    D5             C              PUSH DE
-  F1E7    E5             C              PUSH HL
-  F1E8    2A F2A2        C              LD   HL,(CURSP)
-  F1EB    36 5F          C      COIN1:  LD   (HL),CURSOR
-  F1ED    01 6000        C      COIN2:  LD   BC,6000H     ;Kursorblinkfrequenz
-  F1F0    3A E67B        C      COIN3:  LD   A,(TZ)       ;Tastaturzaehler?
-  F1F3    B7             C              OR   A
-  F1F4    20 10          C              JR   NZ,KEY       ;Taste gedrueckt
-  F1F6    0B             C              DEC  BC
-  F1F7    78             C              LD   A,B
-  F1F8    B1             C              OR   C
-  F1F9    20 F5          C              JR   NZ,COIN3     ;Warteschleife
-  F1FB    3E 5F          C              LD   A,CURSOR
+  F1DB    F3             C      CONIN:  DI
+  F1DC    ED 73 F5E0     C              LD   (SAVSTK),SP
+  F1E0    31 F660        C              LD   SP,BIOSTK
+  F1E3    FB             C              EI
+  F1E4    3E 00          C              LD   A,AC1MOD
+  F1E6    D3 1E          C              OUT  (MAP),A
+  F1E8    C5             C              PUSH BC
+  F1E9    D5             C              PUSH DE
+  F1EA    E5             C              PUSH HL
+  F1EB    2A F2A5        C              LD   HL,(CURSP)
+  F1EE    36 5F          C      COIN1:  LD   (HL),CURSOR
+  F1F0    01 6000        C      COIN2:  LD   BC,6000H     ;Kursorblinkfrequenz
+  F1F3    3A E67B        C      COIN3:  LD   A,(TZ)       ;Tastaturzaehler?
+  F1F6    B7             C              OR   A
+  F1F7    20 10          C              JR   NZ,KEY       ;Taste gedrueckt
+  F1F9    0B             C              DEC  BC
+  F1FA    78             C              LD   A,B
 	MACRO-80 3.44	09-Dec-81	PAGE	1-23
 
 
-  F1FD    BE             C              CP   (HL)
-  F1FE    20 EB          C              JR   NZ,COIN1
-  F200    3A F2A6        C              LD   A,(MERKUR)
-  F203    77             C              LD   (HL),A
-  F204    18 E7          C              JR   COIN2
+  F1FB    B1             C              OR   C
+  F1FC    20 F5          C              JR   NZ,COIN3     ;Warteschleife
+  F1FE    3E 5F          C              LD   A,CURSOR
+  F200    BE             C              CP   (HL)
+  F201    20 EB          C              JR   NZ,COIN1
+  F203    3A F2A9        C              LD   A,(MERKUR)
+  F206    77             C              LD   (HL),A
+  F207    18 E7          C              JR   COIN2
                          C      ;
-  F206    3A F2A6        C      KEY:    LD   A,(MERKUR)   ;Taste gedrueckt
-  F209    77             C              LD   (HL),A       ;Cursor weg
-  F20A    21 E67D        C              LD   HL,TZ+2
-  F20D    56             C              LD   D,(HL)
-  F20E    2B             C              DEC  HL
-  F20F    5E             C              LD   E,(HL)
-  F210    34             C              INC  (HL)
-  F211    CB 9E          C              RES  3,(HL)
-  F213    2B             C              DEC  HL
-  F214    35             C              DEC  (HL)         ;Tastaturzaehler
-  F215    3E 01          C              LD   A,CPMMOD
-  F217    D3 1E          C              OUT  (MAP),A
-  F219    1A             C              LD   A,(DE)       ;Tastencode
-  F21A    E1             C              POP  HL
-  F21B    D1             C              POP  DE
-  F21C    C1             C              POP  BC
-  F21D    F3             C              DI
-  F21E    ED 7B F5DD     C              LD   SP,(SAVSTK)
-  F222    FB             C              EI
-  F223    C9             C              RET
+  F209    3A F2A9        C      KEY:    LD   A,(MERKUR)   ;Taste gedrueckt
+  F20C    77             C              LD   (HL),A       ;Cursor weg
+  F20D    21 E67D        C              LD   HL,TZ+2
+  F210    56             C              LD   D,(HL)
+  F211    2B             C              DEC  HL
+  F212    5E             C              LD   E,(HL)
+  F213    34             C              INC  (HL)
+  F214    CB 9E          C              RES  3,(HL)
+  F216    2B             C              DEC  HL
+  F217    35             C              DEC  (HL)         ;Tastaturzaehler
+  F218    3E 01          C              LD   A,CPMMOD
+  F21A    D3 1E          C              OUT  (MAP),A
+  F21C    1A             C              LD   A,(DE)       ;Tastencode
+  F21D    E1             C              POP  HL
+  F21E    D1             C              POP  DE
+  F21F    C1             C              POP  BC
+  F220    F3             C              DI
+  F221    ED 7B F5E0     C              LD   SP,(SAVSTK)
+  F225    FB             C              EI
+  F226    C9             C              RET
                          C      ;
-  F224    F3             C      CONST:  DI
-  F225    ED 73 F5DD     C              LD   (SAVSTK),SP
-  F229    31 F65D        C              LD   SP,BIOSTK
-  F22C    FB             C              EI
-  F22D    3A E67B        C              LD   A,(TZ)       ;Tastaturzaehler?
-  F230    B7             C              OR   A
-  F231    28 02          C              JR   Z,CONEND     ;keine Taste
-  F233    3E FF          C              LD   A,0FFH
-  F235    F3             C      CONEND: DI
-  F236    ED 7B F5DD     C              LD   SP,(SAVSTK)
-  F23A    FB             C              EI
-  F23B    C9             C              RET
+  F227    F3             C      CONST:  DI
+  F228    ED 73 F5E0     C              LD   (SAVSTK),SP
+  F22C    31 F660        C              LD   SP,BIOSTK
+  F22F    FB             C              EI
+  F230    3A E67B        C              LD   A,(TZ)       ;Tastaturzaehler?
+  F233    B7             C              OR   A
+  F234    28 02          C              JR   Z,CONEND     ;keine Taste
+  F236    3E FF          C              LD   A,0FFH
+  F238    F3             C      CONEND: DI
+  F239    ED 7B F5E0     C              LD   SP,(SAVSTK)
+  F23D    FB             C              EI
+  F23E    C9             C              RET
                          C      ;
-  F23C    F3             C      INTA:   DI
-  F23D    ED 73 F27A     C              LD   (INSTK),SP
-  F241    31 F2A2        C              LD   SP,INSTK1
-  F244    F5             C              PUSH AF
-  F245    C5             C              PUSH BC
-  F246    E5             C              PUSH HL
-  F247    DB 04          C              IN   A,(PIO1AD)
-  F249    B7             C              OR   A            ;Taste gedrueckt?
-  F24A    28 24          C              JR   Z,INTAE
-  F24C    21 E67B        C              LD   HL,TZ
-  F24F    CB 5E          C              BIT  3,(HL)       ;TAPU - Ueberlauf?
-  F251    20 1D          C              JR   NZ,INTAE
-  F253    CB BF          C              RES  7,A
-  F255    34             C              INC  (HL)
-  F256    2A E67E        C              LD   HL,(TZIN)
-  F259    77             C              LD   (HL),A
-  F25A    23             C              INC  HL
-  F25B    CB 9D          C              RES  3,L
-  F25D    22 E67E        C              LD   (TZIN),HL
-  F260    01 1E0B        C              LD   BC,1E0BH     ;Zeitschleife 100 ms
+  F23F    F3             C      INTA:   DI
+  F240    ED 73 F27D     C              LD   (INSTK),SP
+  F244    31 F2A5        C              LD   SP,INSTK1
+  F247    F5             C              PUSH AF
+  F248    C5             C              PUSH BC
+  F249    E5             C              PUSH HL
+  F24A    DB 04          C              IN   A,(PIO1AD)
+  F24C    B7             C              OR   A            ;Taste gedrueckt?
+  F24D    28 24          C              JR   Z,INTAE
+  F24F    21 E67B        C              LD   HL,TZ
+  F252    CB 5E          C              BIT  3,(HL)       ;TAPU - Ueberlauf?
+  F254    20 1D          C              JR   NZ,INTAE
+  F256    CB BF          C              RES  7,A
+  F258    34             C              INC  (HL)
+  F259    2A E67E        C              LD   HL,(TZIN)
+  F25C    77             C              LD   (HL),A
+  F25D    23             C              INC  HL
 	MACRO-80 3.44	09-Dec-81	PAGE	1-24
 
 
-  F263    0B             C      ZS1:    DEC  BC
-  F264    78             C              LD   A,B
-  F265    B1             C              OR   C
-  F266    20 FB          C              JR   NZ,ZS1
-  F268    3E B7          C              LD   A,0B7H       ;weitere Interrupts loeschen
-  F26A    D3 06          C              OUT  (PIO1AC),A   ;---> Entprellung
-  F26C    3E 7F          C              LD   A,7FH
-  F26E    D3 06          C              OUT  (PIO1AC),A
-  F270    E1             C      INTAE:  POP  HL
-  F271    C1             C              POP  BC
-  F272    F1             C              POP  AF
-  F273    ED 7B F27A     C              LD   SP,(INSTK)
-  F277    FB             C              EI
-  F278    ED 4D          C              RETI
+  F25E    CB 9D          C              RES  3,L
+  F260    22 E67E        C              LD   (TZIN),HL
+  F263    01 1E0B        C              LD   BC,1E0BH     ;Zeitschleife 100 ms
+  F266    0B             C      ZS1:    DEC  BC
+  F267    78             C              LD   A,B
+  F268    B1             C              OR   C
+  F269    20 FB          C              JR   NZ,ZS1
+  F26B    3E B7          C              LD   A,0B7H       ;weitere Interrupts loeschen
+  F26D    D3 06          C              OUT  (PIO1AC),A   ;---> Entprellung
+  F26F    3E 7F          C              LD   A,7FH
+  F271    D3 06          C              OUT  (PIO1AC),A
+  F273    E1             C      INTAE:  POP  HL
+  F274    C1             C              POP  BC
+  F275    F1             C              POP  AF
+  F276    ED 7B F27D     C              LD   SP,(INSTK)
+  F27A    FB             C              EI
+  F27B    ED 4D          C              RETI
                          C      ;
-  F27A                   C      INSTK:  DEFS 40,0         ;Stack fuer Int.-Entry
-  F2A2                   C      INSTK1:
+  F27D                   C      INSTK:  DEFS 40,0         ;Stack fuer Int.-Entry
+  F2A5                   C      INSTK1:
                          C      ;
-  F2A2    17FF           C      CURSP:  DEFW 17FFH        ;Kursorposition
-  F2A4    00             C              DEFB 0
-  F2A5    00             C      ESCCNT: DEFB 0
-  F2A6                   C      MERKUR: DEFS 1,0
+  F2A5    17FF           C      CURSP:  DEFW 17FFH        ;Kursorposition
+  F2A7    00             C              DEFB 0
+  F2A8    00             C      ESCCNT: DEFB 0
+  F2A9                   C      MERKUR: DEFS 1,0
                          C      ;
                                 ;
-  F2A7    3A F438               WRITE:  LD   A,(DRIVE)
-  F2AA    FE 00                         CP   0
-  F2AC    CA EEDD                       JP   Z,WRRDSK
+  F2AA    3A F43B               WRITE:  LD   A,(DRIVE)
+  F2AD    FE 00                         CP   0
+  F2AF    CA EEE0                       JP   Z,WRRDSK
                                         IFDEF FLOPPY
-  F2AF    3D                            DEC  A
-  F2B0    E6 FE                         AND  0FEH
-  F2B2    CA E85F                       JP   Z,WRFLO
+  F2B2    3D                            DEC  A
+  F2B3    E6 FE                         AND  0FEH
+  F2B5    CA E862                       JP   Z,WRFLO
                                         ENDIF
-  F2B5    3E 01                         LD   A,1          ;ERROR
-  F2B7    C9                            RET
+  F2B8    3E 01                         LD   A,1          ;ERROR
+  F2BA    C9                            RET
                                 ;
-  F2B8    3A F438               READ:   LD   A,(DRIVE)
-  F2BB    FE 00                         CP   0
-  F2BD    CA EED6                       JP   Z,RDRDSK
+  F2BB    3A F43B               READ:   LD   A,(DRIVE)
+  F2BE    FE 00                         CP   0
+  F2C0    CA EED9                       JP   Z,RDRDSK
                                         IFDEF FLOPPY
-  F2C0    3D                            DEC  A
-  F2C1    E6 FE                         AND  0FEH
-  F2C3    CA E8D1                       JP   Z,RDFLO
+  F2C3    3D                            DEC  A
+  F2C4    E6 FE                         AND  0FEH
+  F2C6    CA E8D4                       JP   Z,RDFLO
                                         ENDIF
-  F2C6    3E 01                         LD   A,1          ;ERROR
-  F2C8    C9                            RET
+  F2C9    3E 01                         LD   A,1          ;ERROR
+  F2CB    C9                            RET
                                 ;
-  F2C9    C3 F05F               LIST:   JP   CONOUT
+  F2CC    C3 F062               LIST:   JP   CONOUT
                                 ;
-  F2CC    3E 00                 LISTST: LD   A,0          ;nicht bereit
-  F2CE    C9                            RET
+  F2CF    3E 00                 LISTST: LD   A,0          ;nicht bereit
+  F2D1    C9                            RET
                                 ;
-  F2CF    C3 F05F               PUNCH:  JP   CONOUT
+  F2D2    C3 F062               PUNCH:  JP   CONOUT
                                 ;
-  F2D2    C3 F1D8               READER: JP   CONIN
+  F2D5    C3 F1DB               READER: JP   CONIN
                                 ;
-  F2D5    21 F370               DERROR: LD   HL,TEXT2
-  F2D8    CD F2E7                       CALL OUTTXT
-  F2DB    21 F378               ERROR:  LD   HL,TEXT3
-  F2DE    CD F2E7                       CALL OUTTXT
-                                        IFDEF FLOPPY
+  F2D8    21 F373               DERROR: LD   HL,TEXT2
+  F2DB    CD F2EA                       CALL OUTTXT
 	MACRO-80 3.44	09-Dec-81	PAGE	1-25
 
 
-  F2E1    CD E941                       CALL MOTOFF       ;Floppy-Motor ausschalten
+  F2DE    21 F37B               ERROR:  LD   HL,TEXT3
+  F2E1    CD F2EA                       CALL OUTTXT
+                                        IFDEF FLOPPY
+  F2E4    CD E944                       CALL MOTOFF       ;Floppy-Motor ausschalten
                                         ENDIF
-  F2E4    C3 E726                       JP   WBOOT
+  F2E7    C3 E726                       JP   WBOOT
                                 ;
-  F2E7    F5                    OUTTXT: PUSH AF
-  F2E8    C5                            PUSH BC
-  F2E9    7E                    TXTLOP: LD   A,(HL)
-  F2EA    FE 00                         CP   0
-  F2EC    28 07                         JR   Z,TXTEND
-  F2EE    4F                            LD   C,A
-  F2EF    CD F05F                       CALL CONOUT
-  F2F2    23                            INC  HL
-  F2F3    18 F4                         JR   TXTLOP
-  F2F5    C1                    TXTEND: POP  BC
-  F2F6    F1                            POP  AF
-  F2F7    C9                            RET
+  F2EA    F5                    OUTTXT: PUSH AF
+  F2EB    C5                            PUSH BC
+  F2EC    7E                    TXTLOP: LD   A,(HL)
+  F2ED    FE 00                         CP   0
+  F2EF    28 07                         JR   Z,TXTEND
+  F2F1    4F                            LD   C,A
+  F2F2    CD F062                       CALL CONOUT
+  F2F5    23                            INC  HL
+  F2F6    18 F4                         JR   TXTLOP
+  F2F8    C1                    TXTEND: POP  BC
+  F2F9    F1                            POP  AF
+  F2FA    C9                            RET
                                 ;
-  F2F8    0C 1B 03 0B           TEXT1:  DEFB 0CH,1BH,03H,0BH
-  F2FC    20 43 50 2F                   DEFM ' CP/M 2.2  Version 1.51 fuer den AC1-2010 '
-  F300    4D 20 32 2E           
-  F304    32 20 20 56           
-  F308    65 72 73 69           
-  F30C    6F 6E 20 31           
-  F310    2E 35 31 20           
-  F314    66 75 65 72           
-  F318    20 64 65 6E           
-  F31C    20 41 43 31           
-  F320    2D 32 30 31           
-  F324    30 20                 
-  F326    0D 0A 0A 0A                   DEFB 0DH,0AH,0AH,0AH
-  F32A    41 3A 52 41                   DEFM 'A:RAM-Disk '
-  F32E    4D 2D 44 69           
-  F332    73 6B 20              
-  F335    00                            DEFB 00H
-  F336    32 35 36 4B           TEXT1A: DEFM "256K"
-  F33A    00                            DEFB 00H
-  F33B    35 31 32 4B           TEXT1B: DEFM "512K"
-  F33F    00                            DEFB 00H
-  F340    31 30 32 34           TEXT1C: DEFM "1024K"
-  F344    4B                    
-  F345    00                            DEFB 00H
-  F346    32 30 34 38           TEXT1D: DEFM "2048K"
-  F34A    4B                    
-  F34B    00                            DEFB 00H
+  F2FB    0C 1B 03 0B           TEXT1:  DEFB 0CH,1BH,03H,0BH
+  F2FF    20 43 50 2F                   DEFM ' CP/M 2.2  Version 1.52 fuer den AC1-2010 '
+  F303    4D 20 32 2E           
+  F307    32 20 20 56           
+  F30B    65 72 73 69           
+  F30F    6F 6E 20 31           
+  F313    2E 35 32 20           
+  F317    66 75 65 72           
+  F31B    20 64 65 6E           
+  F31F    20 41 43 31           
+  F323    2D 32 30 31           
+  F327    30 20                 
+  F329    0D 0A 0A 0A                   DEFB 0DH,0AH,0AH,0AH
+  F32D    41 3A 52 41                   DEFM 'A:RAM-Disk '
+  F331    4D 2D 44 69           
+  F335    73 6B 20              
+  F338    00                            DEFB 00H
+  F339    32 35 36 4B           TEXT1A: DEFM "256K"
+  F33D    00                            DEFB 00H
+  F33E    35 31 32 4B           TEXT1B: DEFM "512K"
+  F342    00                            DEFB 00H
+  F343    31 30 32 34           TEXT1C: DEFM "1024K"
+  F347    4B                    
+  F348    00                            DEFB 00H
+  F349    32 30 34 38           TEXT1D: DEFM "2048K"
+  F34D    4B                    
+  F34E    00                            DEFB 00H
                                 IFDEF FLOPPY
-  F34C    20 20 42 3A           TEXT1E: DEFM '  B:Floppy 780K  C:Floppy 800K  '
-  F350    46 6C 6F 70           
-  F354    70 79 20 37           
-  F358    38 30 4B 20           
-  F35C    20 43 3A 46           
-  F360    6C 6F 70 70           
-  F364    79 20 38 30           
-  F368    30 4B 20 20           
+  F34F    20 20 42 3A           TEXT1E: DEFM '  B:Floppy 780K  C:Floppy 800K  '
+  F353    46 6C 6F 70           
+  F357    70 79 20 37           
+  F35B    38 30 4B 20           
+  F35F    20 43 3A 46           
+  F363    6C 6F 70 70           
+  F367    79 20 38 30           
+  F36B    30 4B 20 20           
                                 ELSE
                                 TEXT1E: DEFM ' (System-Track=255)  '
                                 ENDIF
-  F36C    0D 0A 0A 00                   DEFB 0DH,0AH,0AH,00H
-  F370    0D 0A                 TEXT2:  DEFB 0DH,0AH
-  F372    44 69 73 6B                   DEFM 'Disk-'
-  F376    2D                    
+  F36F    0D 0A 0A 00                   DEFB 0DH,0AH,0AH,00H
 	MACRO-80 3.44	09-Dec-81	PAGE	1-26
 
 
-  F377    00                            DEFB 00H
-  F378    45 52 52 4F           TEXT3:  DEFM 'ERROR'
-  F37C    52                    
-  F37D    0D 0A 07 00                   DEFB 0DH,0AH,07H,00H
+  F373    0D 0A                 TEXT2:  DEFB 0DH,0AH
+  F375    44 69 73 6B                   DEFM 'Disk-'
+  F379    2D                    
+  F37A    00                            DEFB 00H
+  F37B    45 52 52 4F           TEXT3:  DEFM 'ERROR'
+  F37F    52                    
+  F380    0D 0A 07 00                   DEFB 0DH,0AH,07H,00H
                                 ;
-  F381    0000                  DPH:    DEFW 0            ;RAM-Disk 256K
-  F383    0000                          DEFW 0
-  F385    0000                          DEFW 0
-  F387    0000                          DEFW 0
-  F389    F439                          DEFW DIRBF
-  F38B    F3B1                          DEFW DPB0
-  F38D    0000                          DEFW 0            ;weil nichtwechselbares Medium
-  F38F    F4B9                          DEFW ALL0
+  F384    0000                  DPH:    DEFW 0            ;RAM-Disk 256K
+  F386    0000                          DEFW 0
+  F388    0000                          DEFW 0
+  F38A    0000                          DEFW 0
+  F38C    F43C                          DEFW DIRBF
+  F38E    F3B4                          DEFW DPB0
+  F390    0000                          DEFW 0            ;weil nichtwechselbares Medium
+  F392    F4BC                          DEFW ALL0
                                 ;
                                 IFDEF FLOPPY
-  F391    0000                          DEFW 0            ;Floppy 780K
-  F393    0000                          DEFW 0
-  F395    0000                          DEFW 0
-  F397    0000                          DEFW 0
-  F399    F439                          DEFW DIRBF
-  F39B    F3C2                          DEFW DPB1
-  F39D    F56B                          DEFW CHK1
-  F39F    F539                          DEFW ALL1
+  F394    0000                          DEFW 0            ;Floppy 780K
+  F396    0000                          DEFW 0
+  F398    0000                          DEFW 0
+  F39A    0000                          DEFW 0
+  F39C    F43C                          DEFW DIRBF
+  F39E    F3C5                          DEFW DPB1
+  F3A0    F56E                          DEFW CHK1
+  F3A2    F53C                          DEFW ALL1
                                 ;
-  F3A1    0000                          DEFW 0            ;Floppy 800K
-  F3A3    0000                          DEFW 0
-  F3A5    0000                          DEFW 0
-  F3A7    0000                          DEFW 0
-  F3A9    F439                          DEFW DIRBF
-  F3AB    F3D3                          DEFW DPB2
-  F3AD    F5BD                          DEFW CHK2
-  F3AF    F58B                          DEFW ALL2
+  F3A4    0000                          DEFW 0            ;Floppy 800K
+  F3A6    0000                          DEFW 0
+  F3A8    0000                          DEFW 0
+  F3AA    0000                          DEFW 0
+  F3AC    F43C                          DEFW DIRBF
+  F3AE    F3D6                          DEFW DPB2
+  F3B0    F5C0                          DEFW CHK2
+  F3B2    F58E                          DEFW ALL2
                                 ENDIF
                                 ;
                                 ;Disk-Parameter-Block  RAM-Disk A: 256K
                                 ;
-  F3B1    0040                  DPB0:   DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
-  F3B3    03                            DEFB 3            ;Blockgroesse = 1 Kbyte
-  F3B4    07                            DEFB 7
-  F3B5    00                            DEFB 0            ;8-Bit Blockadressen im FCB/DIR, da weniger als 255 Bloecke
-  F3B6    00F7                          DEFW 247          ;248 * 1 Kbyte-Bloecke  -> 256k-8k(System)=248k(CP/M) ( - 2k(DIR) -> 246k (NETTO f. Daten))
-  F3B8    003F                          DEFW 63           ;64 DIR - Eintaege
-  F3BA    00C0                          DEFW 0C0H         ;2 DIR-Bloecke
-  F3BC    0000                          DEFW 0            ;weil nichtwechselbares Medium
-  F3BE    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
+  F3B4    0040                  DPB0:   DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+  F3B6    03                            DEFB 3            ;Blockgroesse = 1 Kbyte
+  F3B7    07                            DEFB 7
+  F3B8    00                            DEFB 0            ;8-Bit Blockadressen im FCB/DIR, da weniger als 255 Bloecke
+  F3B9    00F7                          DEFW 247          ;248 * 1 Kbyte-Bloecke  -> 256k-8k(System)=248k(CP/M) ( - 2k(DIR) -> 246k (NETTO f. Daten))
+  F3BB    003F                          DEFW 63           ;64 DIR - Eintaege
+  F3BD    00C0                          DEFW 0C0H         ;2 DIR-Bloecke
+  F3BF    0000                          DEFW 0            ;weil nichtwechselbares Medium
+  F3C1    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
                                 ;
-  F3C0    0000                          DEFW 0
+  F3C3    0000                          DEFW 0
                                 ;
                                 IFDEF FLOPPY
                                 ;
                                 ;Disk-Parameter-Block  Floppy B: 780K
                                 ;
-  F3C2    0050                  DPB1:   DEFW 80           ;80 Sectoren/Track
-  F3C4    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
-  F3C5    0F                            DEFB 15
-  F3C6    00                            DEFB 0
-  F3C7    0185                          DEFW 389          ;390 * 2 Kbyte - Bloecke
-  F3C9    007F                          DEFW 127          ;128 DIR - Eintraege
-  F3CB    00C0                          DEFW 0C0H         ;pro DIR-Block 1Bit gesetzt
-  F3CD    0020                          DEFW 32
+  F3C5    0050                  DPB1:   DEFW 80           ;80 Sectoren/Track
+  F3C7    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
+  F3C8    0F                            DEFB 15
+  F3C9    00                            DEFB 0
+  F3CA    0185                          DEFW 389          ;390 * 2 Kbyte - Bloecke
 	MACRO-80 3.44	09-Dec-81	PAGE	1-27
 
 
-  F3CF    0002                          DEFW 2            ;20 Kbyte System
+  F3CC    007F                          DEFW 127          ;128 DIR - Eintraege
+  F3CE    00C0                          DEFW 0C0H         ;pro DIR-Block 1Bit gesetzt
+  F3D0    0020                          DEFW 32
+  F3D2    0002                          DEFW 2            ;20 Kbyte System
                                 ;
-  F3D1    0000                          DEFW 0
+  F3D4    0000                          DEFW 0
                                 ;
                                 ;
                                 ;Disk-Parameter-Block  Floppy C: 800K
                                 ;
-  F3D3    0050                  DPB2:   DEFW 80           ;80 Sectoren/Track
-  F3D5    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
-  F3D6    0F                            DEFB 15
-  F3D7    00                            DEFB 0
-  F3D8    018F                          DEFW 399          ;400 * 2 Kbyte - Bloecke
-  F3DA    00BF                          DEFW 191          ;192 DIR - Eintraege
-  F3DC    00E0                          DEFW 0E0H         ;3 DIR-Bloecke
-  F3DE    0030                          DEFW 48
-  F3E0    0000                          DEFW 0            ;0 Kbyte System
+  F3D6    0050                  DPB2:   DEFW 80           ;80 Sectoren/Track
+  F3D8    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
+  F3D9    0F                            DEFB 15
+  F3DA    00                            DEFB 0
+  F3DB    018F                          DEFW 399          ;400 * 2 Kbyte - Bloecke
+  F3DD    00BF                          DEFW 191          ;192 DIR - Eintraege
+  F3DF    00E0                          DEFW 0E0H         ;3 DIR-Bloecke
+  F3E1    0030                          DEFW 48
+  F3E3    0000                          DEFW 0            ;0 Kbyte System
                                 ;
-  F3E2    0000                          DEFW 0
+  F3E5    0000                          DEFW 0
                                 ENDIF
                                 ;
                                 ;Disk-Parameter-Bloecke fuer RAM-Disk 512 / 1024 / 2048 KByte
                                 ;
                                 ;RAM-Disk 512 KByte  LW A:
-  F3E4    0040                  DP512:  DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
-  F3E6    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
-  F3E7    0F                            DEFB 15
-  F3E8    01                            DEFB 1            ;8-Bit Blockadressen im FCB/DIR, da weniger als 255 Bloecke
-  F3E9    00FB                          DEFW 251          ;252 * 2 Kbyte-Bloecke  -> 512k-8k(System)=504k(CP/M) ( - 2k(DIR) -> 502k (NETTO f. Daten))
-  F3EB    003F                          DEFW 63           ;64 DIR - Eintaege
-  F3ED    0080                          DEFW 080H         ;1 DIR-Block
-  F3EF    0000                          DEFW 0            ;weil nichtwechselbares Medium
-  F3F1    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
+  F3E7    0040                  DP512:  DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+  F3E9    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
+  F3EA    0F                            DEFB 15
+  F3EB    01                            DEFB 1            ;8-Bit Blockadressen im FCB/DIR, da weniger als 255 Bloecke
+  F3EC    00FB                          DEFW 251          ;252 * 2 Kbyte-Bloecke  -> 512k-8k(System)=504k(CP/M) ( - 2k(DIR) -> 502k (NETTO f. Daten))
+  F3EE    003F                          DEFW 63           ;64 DIR - Eintaege
+  F3F0    0080                          DEFW 080H         ;1 DIR-Block
+  F3F2    0000                          DEFW 0            ;weil nichtwechselbares Medium
+  F3F4    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
                                 ;
                                 ;RAM-Disk 1024 KByte  LW A:
-  F3F3    0040                  DP1024: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
-  F3F5    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
-  F3F6    0F                            DEFB 15
-  F3F7    00                            DEFB 0            ;16-Bit Blockadressen im FCB/DIR, da mehr als 255 Bloecke
-  F3F8    01FB                          DEFW 507          ;508 * 2 Kbyte-Bloecke  -> 1024k-8k(System)=1016k(CP/M) ( - 4k(DIR) -> 1012k (NETTO f. Daten))
-  F3FA    007F                          DEFW 127          ;128 DIR - Eintraege -> bei 64 DIR-Eintraegen bekommt man die RAM-Disk nicht voll
-  F3FC    00C0                          DEFW 0C0H         ;2 DIR-Bloecke
-  F3FE    0000                          DEFW 0            ;weil nichtwechselbares Medium
-  F400    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
+  F3F6    0040                  DP1024: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+  F3F8    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
+  F3F9    0F                            DEFB 15
+  F3FA    00                            DEFB 0            ;16-Bit Blockadressen im FCB/DIR, da mehr als 255 Bloecke
+  F3FB    01FB                          DEFW 507          ;508 * 2 Kbyte-Bloecke  -> 1024k-8k(System)=1016k(CP/M) ( - 4k(DIR) -> 1012k (NETTO f. Daten))
+  F3FD    007F                          DEFW 127          ;128 DIR - Eintraege -> bei 64 DIR-Eintraegen bekommt man die RAM-Disk nicht voll
+  F3FF    00C0                          DEFW 0C0H         ;2 DIR-Bloecke
+  F401    0000                          DEFW 0            ;weil nichtwechselbares Medium
+  F403    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
                                 ;
                                 ;RAM-Disk 2048 KByte  LW A:
-  F402    0040                  DP2048: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
-  F404    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
-  F405    0F                            DEFB 15
-  F406    00                            DEFB 0            ;16-Bit Blockadressen im FCB/DIR, da mehr als 255 Bloecke
-  F407    03FB                          DEFW 1019         ;1020 * 2 Kbyte-Bloecke  -> 2048k-8k(System)=2040k(CP/M) ( - 8k(DIR) -> 2032k (NETTO f. Daten))
-  F409    00FF                          DEFW 255          ;256 DIR - Eintraege
-  F40B    00F0                          DEFW 0F0H         ;4 DIR-Bloecke
-  F40D    0000                          DEFW 0            ;weil nichtwechselbares Medium
-  F40F    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
+  F405    0040                  DP2048: DEFW 64           ;64 Sectoren/Track (Rec/Trk) = 8 Kbyte/Track
+  F407    04                            DEFB 4            ;Blockgroesse = 2 Kbyte
+  F408    0F                            DEFB 15
+  F409    00                            DEFB 0            ;16-Bit Blockadressen im FCB/DIR, da mehr als 255 Bloecke
+  F40A    03FB                          DEFW 1019         ;1020 * 2 Kbyte-Bloecke  -> 2048k-8k(System)=2040k(CP/M) ( - 8k(DIR) -> 2032k (NETTO f. Daten))
+  F40C    00FF                          DEFW 255          ;256 DIR - Eintraege
+  F40E    00F0                          DEFW 0F0H         ;4 DIR-Bloecke
+  F410    0000                          DEFW 0            ;weil nichtwechselbares Medium
+  F412    0001                          DEFW 1            ;8 Kbyte System / Track-Offset
                                 ;
                                 ; CP/M verlassen
                                 ;
-  F411    F3                    EXIT:   DI
-  F412    31 2000                       LD   SP,2000H
-  F415    21 D007                       LD   HL,CCP+7
 	MACRO-80 3.44	09-Dec-81	PAGE	1-28
 
 
-  F418    36 00                         LD   (HL),0       ;Kommandopuffer loeschen
-  F41A    3E 00                         LD   A,AC1MOD
-  F41C    D3 1E                         OUT  (MAP),A
-  F41E    3E 03                         LD   A,3          ;verbiete Interrupt
-  F420    D3 06                         OUT  (PIO1AC),A
-  F422    3E 4F                         LD   A,4FH        ;PIO - Mode 1
-  F424    D3 06                         OUT  (PIO1AC),A
-  F426    21 103F                       LD   HL,103FH
-  F429    22 1800                       LD   (1800H),HL   ;neue Kursorposition
-  F42C    3E 0F                         LD   A,0FH
-  F42E    36 20                 EXIT1:  LD   (HL),20H     ;letzte BS-Zeile loeschen
-  F430    2B                            DEC  HL
-  F431    BC                            CP   H
-  F432    20 FA                         JR   NZ,EXIT1
-  F434    C3 07FD                       JP   GETCO        ;Ruecksprung in den AC1-Monitor
+  F414    F3                    EXIT:   DI
+  F415    31 2000                       LD   SP,2000H
+  F418    21 D007                       LD   HL,CCP+7
+  F41B    36 00                         LD   (HL),0       ;Kommandopuffer loeschen
+  F41D    3E 00                         LD   A,AC1MOD
+  F41F    D3 1E                         OUT  (MAP),A
+  F421    3E 03                         LD   A,3          ;verbiete Interrupt
+  F423    D3 06                         OUT  (PIO1AC),A
+  F425    3E 4F                         LD   A,4FH        ;PIO - Mode 1
+  F427    D3 06                         OUT  (PIO1AC),A
+  F429    21 103F                       LD   HL,103FH
+  F42C    22 1800                       LD   (1800H),HL   ;neue Kursorposition
+  F42F    3E 0F                         LD   A,0FH
+  F431    36 20                 EXIT1:  LD   (HL),20H     ;letzte BS-Zeile loeschen
+  F433    2B                            DEC  HL
+  F434    BC                            CP   H
+  F435    20 FA                         JR   NZ,EXIT1
+  F437    C3 07FD                       JP   GETCO        ;Ruecksprung in den AC1-Monitor
                                 ;
                                 ; RAM-Zellen
                                 ;
                                 IFDEF FLOPPY
-  F437    03                    NDISK:  DEFB 3            ;Anzahl der LW
+  F43A    03                    NDISK:  DEFB 3            ;Anzahl der LW
                                 ELSE
                                 NDISK:  DEFB 1            ;Anzahl der LW
                                 TRACK:  DEFB 0            ;FLOPPY.INC ist ausgeblendet
                                 SECTOR: DEFB 1            ;TRACK muss dort bleiben, weil
                                 DMA:    DEFW 0080H        ;es in CTAB/CTAB2 verwendet wird
                                 ENDIF
-  F438    00                    DRIVE:  DEFB 0            ;Merker aktuelles LW
+  F43B    00                    DRIVE:  DEFB 0            ;Merker aktuelles LW
                                 ;
-  F439                          DIRBF:  DEFS 80H,0
-  F4B9                          ALL0:   DEFS 128,0        ;Anzahl der Bit's = Anzahl der
+  F43C                          DIRBF:  DEFS 80H,0
+  F4BC                          ALL0:   DEFS 128,0        ;Anzahl der Bit's = Anzahl der
                                 IFDEF FLOPPY
-  F539                          ALL1:   DEFS 50,0         ;Bloecke, die zu verwalten sind
-  F56B                          CHK1:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
-  F58B                          ALL2:   DEFS 50,0         ;Bloecke, die zu verwalten sind
-  F5BD                          CHK2:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
+  F53C                          ALL1:   DEFS 50,0         ;Bloecke, die zu verwalten sind
+  F56E                          CHK1:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
+  F58E                          ALL2:   DEFS 50,0         ;Bloecke, die zu verwalten sind
+  F5C0                          CHK2:   DEFS 32,0         ;= CKS im DPB = DIR-Entrys/4
                                 ENDIF
                                 ;
-  F5DD                          SAVSTK: DEFS 80H,0
-  F65D                          BIOSTK:
+  F5E0                          SAVSTK: DEFS 80H,0
+  F660                          BIOSTK:
                                 ;
-  F65D    45 6E 64 20                   DEFM 'End of BIOS'
-  F661    6F 66 20 42           
-  F665    49 4F 53              
+  F660    45 6E 64 20                   DEFM 'End of BIOS'
+  F664    6F 66 20 42           
+  F668    49 4F 53              
                                 ;
                                         .DEPHASE
                                         END
@@ -1817,85 +1820,85 @@
 Macros:
 
 Symbols:
-0000 	AC1MOD          0043 	AKWAIT          F4B9 	ALL0            
-F539 	ALL1            F58B 	ALL2            D806 	BDOS            
-F128 	BEEP            F12A 	BEEP0           F12C 	BEEP1           
-E600 	BIOS            F65D 	BIOSTK          E603 	BIOSWB          
-EACE 	BLTEST          E68A 	BOOT            E6F4 	BOOT2           
-E6FC 	BOOT3           F100 	BS              D000 	CCP             
-EFAA 	CCPRD           EFB6 	CCPRD1          EF88 	CCPWR           
-EF94 	CCPWR1          0040 	CFDC            F56B 	CHK1            
-F5BD 	CHK2            F15D 	CLRTES          F103 	CLS             
-F1C0 	COEND           F19D 	COEND1          F1EB 	COIN1           
-F1ED 	COIN2           F1F0 	COIN3           F235 	CONEND          
-F1D8 	CONIN           F05F 	CONOUT          F224 	CONST           
-E836 	CPLW            E85D 	CPLW1           E855 	CPLW2           
-E83C 	CPLW3           0001 	CPMMOD          E7EC 	CPSEC           
-E7F6 	CPSEC1          E804 	CPSEC2          E80C 	CPSEC3          
-F0F9 	CR              EAB4 	CTAB            EAC5 	CTAB2           
-F11F 	CUHOME          F190 	CUOFF           F17E 	CUON            
-F142 	CURECH          005F 	CURSOR          F2A2 	CURSP           
-F14F 	CURSUP          F145 	DEL             E9A2 	DEL1            
-E99F 	DELAY           F167 	DELEND          F173 	DELLIN          
-F2D5 	DERROR          0041 	DFDC            F088 	DIPOS           
-F097 	DIPOS1          F439 	DIRBF           E770 	DISK            
-E783 	DISK1           E795 	DISK2           0044 	DL175           
-EAAF 	DMA             F3F3 	DP1024          F402 	DP2048          
-F3E4 	DP512           F3B1 	DPB0            F3C2 	DPB1            
-F3D3 	DPB2            E7AD 	DPB780          E79C 	DPB800          
-F381 	DPH             F438 	DRIVE           E7D5 	DSK780          
-E7BE 	DSK800          E79B 	DSKSET          EABC 	DTL             
-EABA 	EOT             F2DB 	ERROR           F117 	ESCAPE          
-F2A5 	ESCCNT          F411 	EXIT            F42E 	EXIT1           
-EAB1 	FDCCOM          EAD1 	FDMA            EAD0 	FLFLAG          
-0001 	FLOPPY          07FD 	GETCO           EABB 	GPL             
-EAB7 	HEAD            E66A 	HOME            E91D 	HSTRD           
-E920 	HSTWR           E81F 	INHEAD          EA21 	INITF1          
-EA27 	INITF2          EA33 	INITF3          EA11 	INITFL          
-F050 	INITOK          EF30 	INITR1          EF52 	INITR2          
-EF60 	INITR3          EF6C 	INITR4          EF1A 	INITRD          
-F27A 	INSTK           F2A2 	INSTK1          F23C 	INTA            
-F270 	INTAE           0003 	IOBYTE          E9CB 	IRDY            
-E688 	IV              F206 	KEY             F13A 	LF              
-F2C9 	LIST            F2CC 	LISTST          0004 	LWBYTE          
-001E 	MAP             F2A6 	MERKUR          E9EF 	MODE0           
-E9F5 	MODE1           E941 	MOTOFF          E90E 	MOTON           
-E92A 	MOTOR0          E928 	MOTOR1          EAB9 	N               
-EABD 	N2              F437 	NDISK           F04A 	NOTXT           
-F1C7 	ON1             E92E 	ONLOOP          F2E7 	OUTTXT          
-F19B 	OUTZEI          0006 	PIO1AC          0004 	PIO1AD          
+0000 	AC1MOD          0043 	AKWAIT          F4BC 	ALL0            
+F53C 	ALL1            F58E 	ALL2            D806 	BDOS            
+F12B 	BEEP            F12D 	BEEP0           F12F 	BEEP1           
+E600 	BIOS            F660 	BIOSTK          E603 	BIOSWB          
+EAD1 	BLTEST          E68A 	BOOT            E6F4 	BOOT2           
+E6FC 	BOOT3           F103 	BS              D000 	CCP             
+EFAD 	CCPRD           EFB9 	CCPRD1          EF8B 	CCPWR           
+EF97 	CCPWR1          0040 	CFDC            F56E 	CHK1            
+F5C0 	CHK2            F160 	CLRTES          F106 	CLS             
+F1C3 	COEND           F1A0 	COEND1          F1EE 	COIN1           
+F1F0 	COIN2           F1F3 	COIN3           F238 	CONEND          
+F1DB 	CONIN           F062 	CONOUT          F227 	CONST           
+E839 	CPLW            E860 	CPLW1           E858 	CPLW2           
+E83F 	CPLW3           0001 	CPMMOD          E7EF 	CPSEC           
+E7F9 	CPSEC1          E807 	CPSEC2          E80F 	CPSEC3          
+F0FC 	CR              EAB7 	CTAB            EAC8 	CTAB2           
+F122 	CUHOME          F193 	CUOFF           F181 	CUON            
+F145 	CURECH          005F 	CURSOR          F2A5 	CURSP           
+F152 	CURSUP          F148 	DEL             E9A5 	DEL1            
+E9A2 	DELAY           F16A 	DELEND          F176 	DELLIN          
+F2D8 	DERROR          0041 	DFDC            F08B 	DIPOS           
+F09A 	DIPOS1          F43C 	DIRBF           E773 	DISK            
+E786 	DISK1           E798 	DISK2           0044 	DL175           
+EAB2 	DMA             F3F6 	DP1024          F405 	DP2048          
+F3E7 	DP512           F3B4 	DPB0            F3C5 	DPB1            
+F3D6 	DPB2            E7B0 	DPB780          E79F 	DPB800          
+F384 	DPH             F43B 	DRIVE           E7D8 	DSK780          
+E7C1 	DSK800          E79E 	DSKSET          EABF 	DTL             
+EABD 	EOT             F2DE 	ERROR           F11A 	ESCAPE          
+F2A8 	ESCCNT          F414 	EXIT            F431 	EXIT1           
+EAB4 	FDCCOM          EAD4 	FDMA            EAD3 	FLFLAG          
+0001 	FLOPPY          07FD 	GETCO           EABE 	GPL             
+EABA 	HEAD            E66A 	HOME            E920 	HSTRD           
+E923 	HSTWR           E822 	INHEAD          EA24 	INITF1          
+EA2A 	INITF2          EA36 	INITF3          EA14 	INITFL          
+F053 	INITOK          EF33 	INITR1          EF55 	INITR2          
+EF63 	INITR3          EF6F 	INITR4          EF1D 	INITRD          
+F27D 	INSTK           F2A5 	INSTK1          F23F 	INTA            
+F273 	INTAE           0003 	IOBYTE          E9CE 	IRDY            
+E688 	IV              F209 	KEY             F13D 	LF              
+F2CC 	LIST            F2CF 	LISTST          0004 	LWBYTE          
+001E 	MAP             F2A9 	MERKUR          E9F2 	MODE0           
+E9F8 	MODE1           E944 	MOTOFF          E911 	MOTON           
+E92D 	MOTOR0          E92B 	MOTOR1          EABC 	N               
+EAC0 	N2              F43A 	NDISK           F04D 	NOTXT           
+F1CA 	ON1             E931 	ONLOOP          F2EA 	OUTTXT          
+F19E 	OUTZEI          0006 	PIO1AC          0004 	PIO1AD          
 0007 	PIO1BC          0005 	PIO1BD          E676 	PLATZ           
-E94E 	PRECOM          F2CF 	PUNCH           EA6A 	R8272           
-E9A6 	RBYTE           00E0 	RDADR           EEE4 	RDARI           
-E8D1 	RDFLO           EED1 	RDMERK          EED6 	RDRDSK          
-EED5 	RDSIZE          EFCC 	RDTEST          EFD8 	RDTST1          
-EFEA 	RDTST2          EFFA 	RDTST3          F00C 	RDTST4          
-F017 	RDTST5          F028 	RDTXT           E97F 	RDY             
-F2B8 	READ            E8EE 	READ1           F2D2 	READER          
-EA04 	REGDEL          EABE 	RESLT           E9AF 	RRSLT           
+E951 	PRECOM          F2D2 	PUNCH           EA6D 	R8272           
+E9A9 	RBYTE           00E0 	RDADR           EEE7 	RDARI           
+E8D4 	RDFLO           EED4 	RDMERK          EED9 	RDRDSK          
+EED8 	RDSIZE          EFCF 	RDTEST          EFDB 	RDTST1          
+EFED 	RDTST2          EFFD 	RDTST3          F00F 	RDTST4          
+F01A 	RDTST5          F02B 	RDTXT           E982 	RDY             
+F2BB 	READ            E8F1 	READ1           F2D5 	READER          
+EA07 	REGDEL          EAC1 	RESLT           E9B2 	RRSLT           
 	MACRO-80 3.44	09-Dec-81	PAGE	S-1
 
 
-E9B7 	RRSLT1          E9DC 	RW              E9E9 	RW1             
-E9F2 	RW2             EAA5 	RWEND           EA6F 	RWIT            
-EA82 	RWOP            EACF 	RWTEST          F5DD 	SAVSTK          
-E959 	SDS             EAAE 	SECTOR          EAB8 	SECTR           
-E660 	SECTRN          E963 	SEEK            E656 	SELDS1          
-E641 	SELDSK          EA4F 	SENSE           E671 	SETDMA          
-E665 	SETSEC          E66C 	SETTRK          E974 	SKBSY           
-F15F 	SPACE1          F16C 	SPACE2          F1BB 	SPACE3          
-E9DA 	STAB            EAB3 	STREG           E680 	TAPU            
-F2F8 	TEXT1           F336 	TEXT1A          F33B 	TEXT1B          
-F340 	TEXT1C          F346 	TEXT1D          F34C 	TEXT1E          
-F370 	TEXT2           F378 	TEXT3           F04E 	TICK            
-EAB6 	TRACK           F2F5 	TXTEND          F2E9 	TXTLOP          
+E9BA 	RRSLT1          E9DF 	RW              E9EC 	RW1             
+E9F5 	RW2             EAA8 	RWEND           EA72 	RWIT            
+EA85 	RWOP            EAD2 	RWTEST          F5E0 	SAVSTK          
+E95C 	SDS             EAB1 	SECTOR          EABB 	SECTR           
+E660 	SECTRN          E966 	SEEK            E656 	SELDS1          
+E641 	SELDSK          EA52 	SENSE           E671 	SETDMA          
+E665 	SETSEC          E66C 	SETTRK          E977 	SKBSY           
+F162 	SPACE1          F16F 	SPACE2          F1BE 	SPACE3          
+E9DD 	STAB            EAB6 	STREG           E680 	TAPU            
+F2FB 	TEXT1           F339 	TEXT1A          F33E 	TEXT1B          
+F343 	TEXT1C          F349 	TEXT1D          F34F 	TEXT1E          
+F373 	TEXT2           F37B 	TEXT3           F051 	TICK            
+EAB9 	TRACK           F2F8 	TXTEND          F2EC 	TXTLOP          
 E67B 	TZ              E67E 	TZIN            E67C 	TZOUT           
-EAB5 	UNIT            F153 	UP1             F0AB 	VERGL           
-EA63 	W8272           E726 	WBOOT           E741 	WBOOT1          
-E989 	WCOM            E98C 	WCOM1           E85F 	WRFLO           
-F2A7 	WRITE           E87B 	WRITE1          E88B 	WRITE2          
-E89E 	WRITE3          E8B7 	WRITE4          EEDD 	WRRDSK          
-F046 	YESTXT          EA06 	ZEIT1           F263 	ZS1             
+EAB8 	UNIT            F156 	UP1             F0AE 	VERGL           
+EA66 	W8272           E726 	WBOOT           E744 	WBOOT1          
+E98C 	WCOM            E98F 	WCOM1           E862 	WRFLO           
+F2AA 	WRITE           E87E 	WRITE1          E88E 	WRITE2          
+E8A1 	WRITE3          E8BA 	WRITE4          EEE0 	WRRDSK          
+F049 	YESTXT          EA09 	ZEIT1           F266 	ZS1             
 
 
 
@@ -1903,3 +1906,5 @@ No Fatal error(s)
 
 
     
+E67B 	TZ              E67E 	TZIN            E67C 	TZOUT           
+EAB8 

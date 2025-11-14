@@ -6,7 +6,7 @@
 ;       *                                                              *
 ;       *  ACC-BIOS fuer den AC1-2010                                  *
 ;       *                                                              *
-;       *  23.10.2025                                                  *
+;       *  14.11.2025                                                  *
 ;       *                                                              *
 ;       *  LW A: Praecitronic RAM-Disk 256 - 2048 KByte                *
 ;       *  LW B: Floppylaufwerk MFM1.6 780/800 KByte                   *
@@ -201,7 +201,7 @@ TXTEND: POP  BC
         RET
 ;
 TEXT1:  DEFB 0CH,1BH,03H,0BH
-        DEFM ' CP/M 2.2  Version 1.51 fuer den AC1-2010 '
+        DEFM ' CP/M 2.2  Version 1.52 fuer den AC1-2010 '
         DEFB 0DH,0AH,0AH,0AH
         DEFM 'A:RAM-Disk '
         DEFB 00H

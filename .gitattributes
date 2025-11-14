@@ -1,5 +1,15 @@
+# Einheitliche Zeilenenden
+*.MAC text eol=crlf
+*.INC text eol=crlf
+*.PRN text eol=crlf
+*.SUB text eol=crlf
+
+# Linguist: Assembly-Spracherkennung
 *.MAC linguist-language=Assembly
 *.INC linguist-language=Assembly
+
+# Linguist: Unsichtbar machen
 *.PRN linguist-detectable=false
 *.SUB linguist-detectable=false
 *.PNG linguist-detectable=false
+
