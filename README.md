@@ -15,6 +15,7 @@ Im BIOS wurden Änderungen vorgenommen:
 - Es werden 2 phys. Diskettenlaufwerke unterstützt: B: 780 / 800 KByte, C: 800 KByte
 - Umschalten des Diskettenlaufwerks B: auf 780 / 800 KByte mit "DISK"
 - Der Floppy-Treiber kann im BIOS auskommentiert werden, der CCP beginnt dann bei 0E000h
+- Interrupt-Vektortabelle für Anwenderprogramme von 0xFF90 bis 0xFF9F
 
 Das Assemblieren des Quellcodes erfolgt mit SUBMIT.COM:
 ```
@@ -23,13 +24,13 @@ SUBMIT BIOS
 
 Kompilierte Binärdateien sind im Verzeichnis https://github.com/friedertonn/ACC-CPM/releases abgelegt.
 
-**CPM52.Z80** ist die Standard-Version und wird aus dem AC1-Monitor mit dem Befehl J E600 gestartet.
+**CPM53.Z80** ist die Standard-Version und wird aus dem AC1-Monitor mit dem Befehl J E600 gestartet.
 Sie setzt voraus, dass in der RAM-Disk oder auf den Disketten bereits Dateien gespeichert sind.
 ```
 J E600
 ```
 
-**CPM52FC.Z80** ist die Version mit eingebauten FileCommander. 
+**CPM53FC.Z80** ist die Version mit eingebauten FileCommander. 
 Diese Version kann verwendet werden, um benötigte Dateien vom USB-Stick zu laden. 
 ```
 J E600
@@ -37,7 +38,7 @@ SAVE 90 FC.COM
 FC
 ```
 
-**CPM52RD.Z80** ist eine Minimal-Version ohne Unterstützung von Floppy-Laufwerken. Die Größe des TPA beträgt hier 56KByte.
+**CPM53RD.Z80** ist eine Minimal-Version ohne Unterstützung von Floppy-Laufwerken. Die Größe des TPA beträgt hier 56KByte.
 ```
 J F600
 ```

@@ -4,14 +4,23 @@
 ;       *              *
 ;       ****************
 ;
-;14.11.2025
+;11.11.2026
 ;
 BOOT:   DI
         LD   SP,80H
+;
+        LD   HL,0FF00H    ;Speicherbereich von 0xFF00 bis 0xFF9F
+        LD   (HL),0       ;loeschen (wegen DVU, DVHD)
+        LD   DE,0FF01H
+        LD   BC,9FH
+        LDIR
+        LD   HL,ISRTAS    ;Einsprungpunkt PIO1-Tastatur-Interrupt
+        LD   (IV+8),HL    ;auf Adr. 0FF88h eintragen
+;
         IM   2            ;Bitmode Interrupt
         LD   A,HIGH(IV)
         LD   I,A
-        LD   A,LOW(IV)    ;Interruptvektor PIO 1A
+        LD   A,LOW(IV+8)  ;Interruptvektor PIO 1A
         OUT  (PIO1AC),A
         LD   A,0CFH       ;PIO - Mode 3
         OUT  (PIO1AC),A
@@ -83,8 +92,6 @@ BOOT3:  PUSH IX           ;RAM-Disk Text --> HL
         LD   BC,5A00H     ;5A00h Bytes
         LDIR
 ;
-        DI
-        LD   SP,80H
         JR   WBOOT1       ;CCP-Read ueberspringen
 ;
 WBOOT:  DI
@@ -123,4 +130,4 @@ WBOOT1: XOR  A
         EI
         JP   CCP          ;JP CCP
 ;
-
+

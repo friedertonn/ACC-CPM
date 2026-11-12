@@ -4,14 +4,13 @@
 ;       *                         *
 ;       ***************************
 ;
-;06.07.2022
+;11.11.2026
 ;
 CURSOR  EQU  5FH          ;Cursorsymbol "_"
 ;
 CONOUT: DI
         LD   (SAVSTK),SP
         LD   SP,BIOSTK
-        EI
         PUSH AF
         PUSH BC
         PUSH DE
@@ -216,7 +215,6 @@ ON1:    LD   (HL),CURSOR
         POP  DE
         POP  BC
         POP  AF
-        DI
         LD   SP,(SAVSTK)
         EI
         RET
@@ -224,15 +222,17 @@ ON1:    LD   (HL),CURSOR
 CONIN:  DI
         LD   (SAVSTK),SP
         LD   SP,BIOSTK
-        EI
-        LD   A,AC1MOD
-        OUT  (MAP),A
         PUSH BC
         PUSH DE
         PUSH HL
+        LD   A,AC1MOD
+        OUT  (MAP),A
         LD   HL,(CURSP)
 COIN1:  LD   (HL),CURSOR
 COIN2:  LD   BC,6000H     ;Kursorblinkfrequenz
+        LD   A,CPMMOD     ;>
+        OUT  (MAP),A      ;> Interrupt-Freigabe
+        EI                ;>
 COIN3:  LD   A,(TZ)       ;Tastaturzaehler?
         OR   A
         JR   NZ,KEY       ;Taste gedrueckt
@@ -240,6 +240,9 @@ COIN3:  LD   A,(TZ)       ;Tastaturzaehler?
         LD   A,B
         OR   C
         JR   NZ,COIN3     ;Warteschleife
+        DI                ;>
+        LD   A,AC1MOD     ;> Interrupt-Sperre
+        OUT  (MAP),A      ;>
         LD   A,CURSOR
         CP   (HL)
         JR   NZ,COIN1
@@ -247,7 +250,10 @@ COIN3:  LD   A,(TZ)       ;Tastaturzaehler?
         LD   (HL),A
         JR   COIN2
 ;
-KEY:    LD   A,(MERKUR)   ;Taste gedrueckt
+KEY:    DI                ;>
+        LD   A,AC1MOD     ;> Interrupt-Sperre
+        OUT  (MAP),A      ;>
+        LD   A,(MERKUR)   ;Taste gedrueckt
         LD   (HL),A       ;Cursor weg
         LD   HL,TZ+2
         LD   D,(HL)
@@ -263,25 +269,19 @@ KEY:    LD   A,(MERKUR)   ;Taste gedrueckt
         POP  HL
         POP  DE
         POP  BC
-        DI
         LD   SP,(SAVSTK)
         EI
         RET
 ;
 CONST:  DI
-        LD   (SAVSTK),SP
-        LD   SP,BIOSTK
-        EI
         LD   A,(TZ)       ;Tastaturzaehler?
         OR   A
         JR   Z,CONEND     ;keine Taste
         LD   A,0FFH
-CONEND: DI
-        LD   SP,(SAVSTK)
-        EI
+CONEND: EI
         RET
 ;
-INTA:   DI
+ISRTAS: DI
         LD   (INSTK),SP
         LD   SP,INSTK1
         PUSH AF
@@ -289,34 +289,34 @@ INTA:   DI
         PUSH HL
         IN   A,(PIO1AD)
         OR   A            ;Taste gedrueckt?
-        JR   Z,INTAE
+        JR   Z,ISRTAE
         LD   HL,TZ
         BIT  3,(HL)       ;TAPU - Ueberlauf?
-        JR   NZ,INTAE
+        JR   NZ,ISRTAE
         RES  7,A
-        INC  (HL)
+        INC  (HL)         ;Zaehler++
         LD   HL,(TZIN)
         LD   (HL),A
         INC  HL
         RES  3,L
         LD   (TZIN),HL
         LD   BC,1E0BH     ;Zeitschleife 100 ms
-ZS1:    DEC  BC
+ISRZS:  DEC  BC
         LD   A,B
         OR   C
-        JR   NZ,ZS1
+        JR   NZ,ISRZS
         LD   A,0B7H       ;weitere Interrupts loeschen
-        OUT  (PIO1AC),A   ;---> Entprellung
+        OUT  (PIO1AC),A   ;--> Entprellung
         LD   A,7FH
         OUT  (PIO1AC),A
-INTAE:  POP  HL
+ISRTAE: POP  HL
         POP  BC
         POP  AF
         LD   SP,(INSTK)
         EI
         RETI
 ;
-INSTK:  DEFS 40,0         ;Stack fuer Int.-Entry
+INSTK:  DEFS 10,0         ;Stack fuer Int.-Entry
 INSTK1:
 ;
 CURSP:  DEFW 17FFH        ;Kursorposition
@@ -324,4 +324,4 @@ CURSP:  DEFW 17FFH        ;Kursorposition
 ESCCNT: DEFB 0
 MERKUR: DEFS 1,0
 ;
-
+

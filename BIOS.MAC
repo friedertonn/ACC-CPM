@@ -6,7 +6,7 @@
 ;       *                                                              *
 ;       *  ACC-BIOS fuer den AC1-2010                                  *
 ;       *                                                              *
-;       *  14.11.2025                                                  *
+;       *  11.11.2026                                                  *
 ;       *                                                              *
 ;       *  LW A: Praecitronic RAM-Disk 256 - 2048 KByte                *
 ;       *  LW B: Floppylaufwerk MFM1.6 780/800 KByte                   *
@@ -52,6 +52,8 @@ MAP     EQU  1EH          ;Seitenschaltung nach FA
 ;
 AC1MOD  EQU  0            ;AC1 - Mode
 CPMMOD  EQU  1            ;CP/M - Mode
+;
+IV      EQU  0FF80H       ;Interrupt-Vektoren von 0xFF80 bis 0xFF9F
 ;
         .PHASE BIOS
 ;
@@ -128,8 +130,6 @@ TZOUT:  DEFW TAPU         ;Ausgabezeiger
 TZIN:   DEFW TAPU         ;Eingabezeiger
 TAPU:   DEFS 8,0          ;Tastatur-Ringpuffer
 ;
-IV:     DEFW INTA         ;Int.-Vektor fuer CONIN (PIO)
-;
         .PRINTX '--> BOOT'
 $INCLUDE BOOT.INC
 ;
@@ -201,7 +201,7 @@ TXTEND: POP  BC
         RET
 ;
 TEXT1:  DEFB 0CH,1BH,03H,0BH
-        DEFM ' CP/M 2.2  Version 1.52 fuer den AC1-2010 '
+        DEFM ' CP/M 2.2  Version 1.53 fuer den AC1-2010 '
         DEFB 0DH,0AH,0AH,0AH
         DEFM 'A:RAM-Disk '
         DEFB 00H
@@ -385,4 +385,4 @@ BIOSTK:
         .DEPHASE
         END
 ;
-
+
