@@ -273,16 +273,13 @@ KEY:    DI                ;>
         EI
         RET
 ;
-CONST:  DI
-        LD   A,(TZ)       ;Tastaturzaehler?
+CONST:  LD   A,(TZ)       ;Tastaturzaehler?
         OR   A
-        JR   Z,CONEND     ;keine Taste
+        RET  Z            ;keine Taste
         LD   A,0FFH
-CONEND: EI
         RET
 ;
-ISRTAS: DI
-        LD   (INSTK),SP
+ISRTAS: LD   (INSTK),SP   ;DI kann wegbleiben
         LD   SP,INSTK1
         PUSH AF
         PUSH BC
@@ -316,7 +313,7 @@ ISRTAE: POP  HL
         EI
         RETI
 ;
-INSTK:  DEFS 10,0         ;Stack fuer Int.-Entry
+INSTK:  DEFS 10,0         ;Stack fuer ISR
 INSTK1:
 ;
 CURSP:  DEFW 17FFH        ;Kursorposition
